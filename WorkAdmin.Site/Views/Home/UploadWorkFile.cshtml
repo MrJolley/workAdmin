@@ -1,0 +1,82 @@
+﻿@using WorkAdmin.Models.ViewModels
+@model UploadWorkFileViewModel
+@{
+    ViewBag.Title = "Upload Work Tracking File";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="panel panel-default" style="margin:20px;min-height:500px;">
+    <div class="panel-heading">
+        @ViewBag.Title
+    </div>
+    <div class="panel-body">
+        @if (ViewBag.ErrorMsg != null)
+        { 
+           <div class="row form-group">
+               <div class="col-sm-12 text-danger">
+                   @ViewBag.ErrorMsg
+               </div>
+           </div>
+        }
+        @using (Html.BeginForm("UploadWorkFile", "Home", FormMethod.Post, new { @class = "form form-horizontal", enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="row form-group">
+                <div class="col-sm-12 text-danger">
+                    @Html.ValidationSummary()
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-sm-3 control-label">
+                    @Html.LabelFor(r=>r.WorkFileType)
+                </div>
+                <div class="col-sm-6">
+                    @Html.DropDownListFor(r => r.WorkFileType, ViewBag.FileTypeSelectItems as IEnumerable<SelectListItem>, new { @class="form-control"})
+                </div>
+                <div class="col-sm-3"></div>
+            </div>
+            <div class="row form-group">
+                <div class="col-sm-3 control-label">
+                    @Html.LabelFor(r => r.Month)
+                </div>
+                <div class="col-sm-6">
+                    @Html.TextBoxFor(r => r.Month, new { @class = "form-control", id = "txtMonthSelector" })
+                </div>
+                <div class="col-sm-3"></div>
+            </div>
+            <div class="row form-group">
+                <div class="col-sm-3 control-label">
+                    @Html.LabelFor(r=>r.UploadedFile)
+                </div>
+                <div class="col-sm-9">
+                    @Html.TextBoxFor(r => r.UploadedFile, new { @class="form-control",type="file"})
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-sm-3"></div>
+                <div class="col-sm-6">
+                    <input type="submit" value="Upload" class="btn btn-warning" />
+                </div>
+            </div>
+        }
+    </div>
+</div>
+@section scripts{
+<script src="~/Content/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#txtMonthSelector").datepicker({
+                format: 'mm/yyyy',
+                startView: 1,
+                minViewMode: 1
+            });
+            $("#menuUploadWorkFile").addClass("selected");
+            $("#management").addClass("selected");
+        });
+    </script>
+    }
+
+@section styles{
+    <link href="~/Content/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+}
+

@@ -1,0 +1,141 @@
+﻿@model WorkAdmin.Models.Entities.User
+@{
+    ViewBag.Title = "Update User";
+    Layout = null;
+}
+
+<div class="modal" id="modalUpdateUser">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                @Model.FullName
+                <button type="button" class="close"
+                        data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+            </div>
+            <div class="modal-body">
+                @using (Html.BeginForm("UpdateUser", "Home", new { id = @Model.Id, from = ViewBag.From, filter = ViewBag.Filter }, FormMethod.Post, new { @class = "form form-horizontal" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="row form-group">
+                        <div class="col-sm-12">
+                            @Html.ValidationSummary()
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-sm-4 control-label">
+                            Email Address
+                        </div>
+                        <div class="col-sm-6">
+                            @Html.TextBoxFor(r => r.EmailAddress, new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-2"></div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-sm-4 control-label">
+                            English Name
+                        </div>
+                        <div class="col-sm-6">
+                            @Html.TextBoxFor(r => r.EnglishName, new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-2"></div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-sm-4 control-label">
+                            Chinese Name
+                        </div>
+                        <div class="col-sm-6">
+                            @Html.TextBoxFor(r => r.ChineseName, new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-2"></div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-sm-4 control-label">
+                            Is Manager
+                        </div>
+                        <div class="col-sm-6">
+                            @Html.DropDownListFor(r => r.IsManager, new SelectListItem[] {
+                            new SelectListItem(){ Text="Yes",Value="true"},
+                            new SelectListItem(){Text="No",Value="false"}
+                       }, new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-2"></div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-sm-4 control-label">
+                            Level
+                        </div>
+                        <div class="col-sm-6">
+                            @Html.DropDownListFor(r => r.rankLevel, ViewData["VDRankLevel"] as List<SelectListItem>,
+                            "--请选择--", new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-2"></div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-sm-4 control-label">
+                            Department
+                        </div>
+                        <div class="col-sm-6">
+                            @Html.DropDownListFor(r => r.department, ViewData["VDDepartment"] as List<SelectListItem>,
+                         "--请选择--", new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-2"></div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-sm-4 control-label">
+                            Project
+                        </div>
+                        <div class="col-sm-6">
+                            @Html.DropDownListFor(r => r.project, ViewData["VDProject"] as List<SelectListItem>,
+                         "--请选择--", new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-2"></div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-sm-4 control-label">
+                            Position
+                        </div>
+                        <div class="col-sm-6">
+                            @Html.DropDownListFor(r => r.position, ViewData["VDPosition"] as List<SelectListItem>,
+                         "--请选择--", new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-2"></div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-sm-4 control-label">
+                            Is Working At Home
+                        </div>
+                        <div class="col-sm-6">
+                            @Html.DropDownListFor(r => r.IsWorkingAtHome, new SelectListItem[] {
+                            new SelectListItem(){ Text="Yes",Value="true"},
+                            new SelectListItem(){Text="No",Value="false"}
+                       }, new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-2"></div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-sm-4 control-label">
+                            Is Excluded
+                        </div>
+                        <div class="col-sm-6">
+                            @Html.DropDownListFor(r => r.IsExcluded, new SelectListItem[] {
+                            new SelectListItem(){ Text="Yes",Value="true"},
+                            new SelectListItem(){Text="No",Value="false"}
+                       }, new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-2"></div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-sm-4"></div>
+                        <div class="col-sm-8">
+                            <input type="submit" value="Update" class="btn btn-warning" />
+                            &nbsp;
+                            <a href="javascript:void(0)" data-dismiss="modal" class="btn btn-default">Close</a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

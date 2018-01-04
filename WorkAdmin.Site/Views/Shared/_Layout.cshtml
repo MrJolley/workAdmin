@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Work Admin</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("styles", required: false)
+</head>
+<body>
+    <div class="navbar navbar-fixed-top" style="background-color:white; border-bottom:2px solid #dddddd;">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("Work Admin", "WorkLog", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li id="menuWorkLog">@Html.ActionLink("Work Log", "WorkLog", "Home")</li>
+                    <li id="menuWorkReport">@Html.ActionLink("Work Report", "WorkReport", "Home")</li>
+                    <li id="menuJiraWorkLog">@Html.ActionLink("Jira Worklog", "JiraWorkLog", "Home")</li>
+                    @if (new MyHttpUtilities().CurrentUser.IsManager || new MyHttpUtilities().CurrentUser.LoginName == "hpan")
+                    {
+                        <li class="dropdown" id="management">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Management<span class="caret"></span></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li id="menuUploadWorkFile"><a href="#feature-tab" data-tab="tab-UploadWorkFile">@Html.ActionLink("Upload Work File", "UploadWorkFile", "Home")</a></li>
+                                <li id="menuUsers"><a href="#feature-tab" data-tab="tab-Users">@Html.ActionLink("Users", "UserList", "Home")</a></li>
+                                <li id="menuExcludedUsers"><a href="#feature-tab" data-tab="tab-ExcludedUsers">@Html.ActionLink("Excluded Users", "ExcludedUserList", "Home")</a></li>
+                                <li id="menuExportReport"><a href="#feature-tab" data-tab="tab-WorkReport">@Html.ActionLink("Export WorkReport", "ExportWorkReport", "Home")</a></li>
+                            </ul>
+                        </li>
+                    }
+                    <li class="dropdown" id="maildown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Mail System<span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            @if (new MyHttpUtilities().CurrentUser.LoginName == "bzhou" || new MyHttpUtilities().CurrentUser.LoginName == "jyhuang")
+                            {
+                                <li id="menuHoliday"><a href="#feature-tab" data-tab="tab-holiday">@Html.ActionLink("Holiday Mail", "HolidayMail", "Home")</a></li>
+                            }
+                            @if (new MyHttpUtilities().CurrentUser.LoginName == "bzhou" || new MyHttpUtilities().CurrentUser.LoginName == "hpan" || new MyHttpUtilities().CurrentUser.FullName == "Meng Li")
+                            {
+                                <li id="MenuSalaryMails"><a href="#feature-tab" data-tab="tab-SalaryMails">@Html.ActionLink("Salary Mails", "SalaryDetails", "Home")</a></li>
+                            }
+                        </ul>
+                    </li>
+                    @if (new MyHttpUtilities().CurrentUser.LoginName == "bzhou" || new MyHttpUtilities().CurrentUser.LoginName == "rhong" || new MyHttpUtilities().CurrentUser.LoginName == "jhuang")
+                    {
+                        <li id="menuWorkTime">@Html.ActionLink("Worklog Time", "WorklogTime", "Home")</li>
+                    }
+                </ul>
+                @Html.Partial("_LoginPartial")
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - Shanghai Alliance Financial Services Co., Ltd</p>
+        </footer>
+    </div>
+    @RenderSection("scripts", required: false)
+</body>
+</html>

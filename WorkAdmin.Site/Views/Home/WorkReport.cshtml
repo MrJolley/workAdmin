@@ -1,0 +1,289 @@
+﻿@using System.Data;
+@using WorkAdmin.Models;
+@model WorkAdmin.Models.ViewModels.WorkReportViewModel
+@{
+    ViewBag.Title = "Work Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var CurrentUser = new MyHttpUtilities().CurrentUser;
+
+    List<string> distinctDates = Model.WorkReportDataView.Table.Columns.OfType<DataColumn>()
+           .Where(r => r.ColumnName.EndsWith("Morning"))
+           .Select(r => r.ColumnName.Replace("Morning", ""))
+           .Distinct().ToList();
+}
+    <div class="panel-body" style="min-height:600px;">
+        <div class="row" style="margin:10px 3px 15px 3px;">
+            @using (Html.BeginForm("WorkReport", "Home", FormMethod.Get, new { @class = "form form-horizontal" }))
+            {
+                <div class="pull-left">
+                    Month:
+                    <input type="text" name="month" id="txtMonthSelector" value="@Model.Month" />
+                    @if (CurrentUser.IsManager)
+                    {
+                        @:Search:
+                        <input type="text" name="filter" id="txtUserFilter" value="@Model.Filter" placeholder="Press Enter to search" />
+                    }
+                </div>
+            }
+            @if (Model.UploadProperty != null)
+            {
+                <div class="pull-right">
+                    @if (Model.UploadProperty.AsOfDate != DateTime.MinValue)
+                    {
+                        @:Stats Date:
+                        <span style="color:red;">
+                            @Model.UploadProperty.AsOfDate.ToString("MM/dd/yyyy")
+                        </span>
+                        @:Upload Date:
+                        <span style="color:red;">
+                            @Model.UploadProperty.CreatedTime.ToString("MM/dd/yyyy HH:mm")
+                        </span>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.UploadProperty.Comment) && (Model.WorkReportDataView.Count > 0||Model.WorkReportAtHomeDataView.Count>0))
+                    {
+                        @:&nbsp;
+                        <span style="font-size:10px;color:gray;">@Model.UploadProperty.Comment</span>
+                    }
+                </div>
+            }
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                @if (Model.WorkReportDataView.Count > 0)
+                {
+                    <table class="table table-bordered table-hover table-click-effect">
+                        <thead>
+                            <tr>
+                                <th colspan="4"></th>
+                                @foreach (var date in distinctDates)
+                                {
+                                    <th colspan="3">@date</th>
+                                }
+                            </tr>
+                            <tr>
+                                @foreach (DataColumn col in Model.WorkReportDataView.Table.Columns)
+                                {
+                                    if (col.ColumnName.EndsWith("Morning"))
+                                    {
+                                        <th>早</th>
+                                    }
+                                    else if (col.ColumnName.EndsWith("Noon"))
+                                    {
+                                        <th>中</th>
+                                    }
+                                    else if (col.ColumnName.EndsWith("Evening"))
+                                    {
+                                        <th>晚</th>
+                                    }
+                                    else if (col.ColumnName.EndsWith("Afternoon"))
+                                    {
+
+                                    }
+                                    else if(col.ColumnName=="UserType")
+                                    {
+                                       <th></th>
+                                    }
+                                    else
+                                    {
+                                        if (Model.SortField == col.ColumnName && Model.SortDirection == ESortDirection.Ascending)
+                                        {
+                                            <th style=" white-space:nowrap;">
+                                                @Html.ActionLink(col.ColumnName, "WorkReport", new { month = @Model.Month, filter = @Model.Filter, sortfield = @col.ColumnName, sortdirection = "1" })
+                                                <b>&uarr;</b>
+                                            </th>
+                                        }
+                                        else
+                                        {
+                                            <th style=" white-space:nowrap;">
+                                                @Html.ActionLink(col.ColumnName, "WorkReport", new { month = @Model.Month, filter = @Model.Filter, sortfield = @col.ColumnName, sortdirection = "0" })
+                                                @if (col.ColumnName == Model.SortField)
+                                                {
+                                                    @:<b>&darr;</b>
+                                                }
+                                            </th>
+                                        }
+                                    }
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (DataRowView row in Model.WorkReportDataView)
+                            {
+                                <tr>
+                                    @foreach (DataColumn col in Model.WorkReportDataView.Table.Columns)
+                                    {
+                                        if (col.DataType == typeof(bool))
+                                        {
+                                            if (!col.ColumnName.EndsWith("Afternoon"))
+                                            {
+                                                if (row.Row.Field<bool>(col) == true)
+                                                {
+                                                    <td>X</td>
+                                                }
+                                                else
+                                                {
+                                                    <td></td>
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <td style="white-space:nowrap;">@row.Row[col].ToString()</td>
+                                        }
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+
+                @if (Model.WorkReportAtHomeDataView.Count > 0)
+                {
+                    <h4>Work At Home Users</h4>
+                    <table class="table table-bordered table-hover table-click-effect">
+                        <thead>
+                            <tr>
+                                <th colspan="4"></th>
+                                @foreach (var date in distinctDates)
+                                {
+                                    <th colspan="4">@date</th>
+                                }
+                            </tr>
+                            <tr>
+                                @foreach (DataColumn col in Model.WorkReportAtHomeDataView.Table.Columns)
+                                {
+                                    if (col.ColumnName.EndsWith("Morning"))
+                                    {
+                                        <th>早</th>
+                                    }
+                                    else if (col.ColumnName.EndsWith("Noon"))
+                                    {
+                                        <th>中午</th>
+                                    }
+                                    else if (col.ColumnName.EndsWith("Evening"))
+                                    {
+                                        <th>晚</th>
+                                    }
+                                    else if (col.ColumnName.EndsWith("Afternoon"))
+                                    {
+                                        <th>下午</th>
+                                    }
+                                    else if(col.ColumnName=="UserType")
+                                    {
+                                       <th></th>
+                                    }
+                                    else
+                                    {
+                                        <th style="white-space:nowrap;">@col.ColumnName</th>
+                                    }
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (DataRowView row in Model.WorkReportAtHomeDataView)
+                            {
+                                <tr>
+                                    @foreach (DataColumn col in Model.WorkReportAtHomeDataView.Table.Columns)
+                                    {
+                                        if (col.DataType == typeof(bool))
+                                        {
+                                            if (row.Row.Field<bool?>(col) == true)
+                                            {
+                                                <td>X</td>
+                                            }
+                                            else
+                                            {
+                                                <td></td>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <td style="white-space:nowrap;">@row.Row[col].ToString()</td>
+                                        }
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+
+                @if (Model.WorkReportDataView.Count == 0 && Model.WorkReportAtHomeDataView.Count == 0)
+                {
+                    <div class="row">
+                        <div class="col-sm-12">
+                            No data to display
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+
+
+@section Scripts{
+@if (CurrentUser.IsManager)
+{
+    <script src="~/Content/jquery-ui.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var userSource = [];
+            @foreach (var name in Model.UserAutoCompletionSource)
+            {
+                @:userSource.push("@name");
+                        }
+            $("#txtUserFilter").autocomplete(
+                {
+                    source: userSource
+                });
+            $("#txtUserFilter").keypress(function (e) {
+                if (e.keyCode == 13) {
+                    this.form.submit();
+                }
+
+            });
+        });
+    </script>
+}
+
+    <script src="~/Content/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#txtMonthSelector").datepicker({
+                format: 'mm/yyyy',
+                startView: 1,
+                minViewMode: 1
+            });
+            $("#menuWorkReport").addClass("selected");
+            var monthInitialVal = '@Model.Month';
+            $("#txtMonthSelector").change(function (e) {
+                if ($(this).val() != monthInitialVal) {
+                    this.form.submit();
+                }
+            });
+        });
+
+        @if (Model.WorkReportDataView.Count > 1)
+        {
+            <text>
+               $(document).ready(function () {
+                   var $clickedRow=null;
+                   $(".table-click-effect tbody tr").click(function(){
+                       if($clickedRow!=null)
+                           $clickedRow.removeClass("row-clicked");
+                       $(this).addClass("row-clicked");
+                       $clickedRow=$(this);
+                   });
+               });
+            </text>
+        }
+    </script>
+}
+@section styles{    
+<link href="~/Content/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+@if (CurrentUser.IsManager)
+{
+    <link href="~/Content/jquery-ui.css" rel="stylesheet" />
+}
+    }
+

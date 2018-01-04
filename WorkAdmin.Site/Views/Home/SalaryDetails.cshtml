@@ -1,0 +1,353 @@
+﻿@using WorkAdmin.Models;
+@using System.Data;
+@model WorkAdmin.Models.ViewModels.SalaryDetailsViewModel
+@{
+    ViewBag.Title = "Salary Mails";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="panel panel-default" style="margin:20px;min-height:400px;">
+    <div class="panel-heading">
+        @ViewBag.Title
+    </div>
+    <div class="panel-body" style="min-height:600px; height:1050px">
+        @if (ViewBag.ErrorMsg != null)
+        {
+            <div class="row form-group">
+                <div class="col-sm-12 text-danger">
+                    @ViewBag.ErrorMsg
+                </div>
+            </div>
+        }
+        @using (Html.BeginForm("SalaryDetails", "Home", FormMethod.Post, new { @class = "form form-horizontal", enctype = "multipart/form-data", id = "uploadForm" }))
+        {
+            @Html.AntiForgeryToken();
+    <table class="table table-condensed">
+        <tr>
+            @*<th class="col-sm-6" style="margin:10px 3px 15px 3px;">*@
+            <td>
+                <div class="row form-group">
+                    <div class="col-sm-5 control-label">
+                        @Html.LabelFor(r => r.Month)：
+                    </div>
+                    <div class="col-sm-6">
+                        @Html.TextBoxFor(r => r.Month, new { @class = "form-control", id = "txtMonthSelector", name = "mydate" })
+                        @Html.ValidationMessageFor(r => r.Month)
+                    </div>
+                    <div class="col-sm-1"></div>
+                </div>
+            </td>
+            <td>
+                <div class="row form-group">
+                    <div class="col-sm-5 control-label">
+                        @Html.LabelFor(r => r.UploadedFile)：
+                    </div>
+                    <div class="col-sm-6">
+                        @Html.TextBoxFor(r => r.UploadedFile, new { @class = "form-control", type = "file", id = "uploadedFile", name = "myfile" })
+                        @Html.ValidationMessageFor(r => r.UploadedFile)
+                    </div>
+                    <div class="col-sm-1"></div>
+                </div>
+            </td>
+            <td>
+                <div class="row form-group">
+                    <div class="col-sm-5"></div>
+                    <div class="col-sm-6 text-left">
+                        <input type="submit" class="btn btn-default btn-primary" value="Check" name="submitButton" id="uploadSubmit" @*onclick='this.form.action="@Url.Action("SalaryDetails")"' *@ />
+                    </div>
+                    <div class="col-sm-1"></div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            @*</th>*@
+            @*<th class=" col-sm-6" style="margin:10px 3px 15px 3px;">*@
+            <td>
+                <div class="row form-group">
+                    <div class="col-sm-5 control-label">
+                        @Html.LabelFor(r => r.Address)：
+                    </div>
+                    <div class="col-sm-6">
+                        @Html.TextBoxFor(r => r.Address, new { @class = "form-control", name = "myaddress", id = "address" })
+                        @Html.ValidationMessageFor(r => r.Address)
+                    </div>
+                    <div class="col-sm-1"></div>
+                </div>
+            </td>
+            <td>
+                <div class="row form-group">
+                    <div class="col-sm-5 control-label">
+                        @Html.LabelFor(r => r.Password)：
+                    </div>
+                    <div class="col-sm-6">
+                        @Html.TextBoxFor(r => r.Password, new { @class = "form-control", id = "password", type = "password", name = "mypassword" })
+                        @Html.ValidationMessageFor(r => r.Password)
+                    </div>
+                    <div class="col-sm-1"></div>
+                </div>
+            </td>
+            <td>
+                <div class="row form-group">
+                    <div class="col-sm-5"></div>
+                    <div class="col-sm-2 text-right">
+                        <input type="button" class="btn btn-primary" value="&nbsp;Send&nbsp;" name="submitButton" id="sendSubmit" onclick="transferTableChecked()" />
+                    </div>
+                    @*<div class="col-sm-4">
+                        <input type="checkbox" id="emailPassword"><label for="emailPassword" style="font-weight:lighter">show&nbsp;&nbsp;password</label>
+                    </div>*@
+                    <div class="col-sm-1"></div>
+                </div>
+            </td>
+        </tr>
+        @*</th>*@
+        <tr>
+            <td>
+                <div style="display:none;">
+                    @*<input type="text" id="excelName" value=@Model.TableName />*@
+                    @Html.TextBoxFor(r => r.TableName, new { id = "excelName" })
+                </div>
+            </td>
+            <td></td>
+            <td></td>
+        </tr>
+    </table>
+            <div id="emailStyle">
+                <div>邮件正文说明部分格式：</div>
+                @Html.TextAreaFor(r => r.emailStyle, new { @class="emailStyle", id="styleText", placeHolder="请输入邮件正文说明格式，不包括结尾致谢和签名部分" })
+            </div>
+        }
+        <div id="updateTarget">
+            @if (ViewBag.showTable == true)
+            {
+                <div class="tablebox">
+                    <div class="tablehead">
+                        <table class="head row-clicked" border="1" id="table_head">
+                            <tr>
+                                <td>status</td>
+                                <td><input type="checkbox" id="selectAll" value="select all">select all</td>
+                                @foreach (DataColumn col in Model.SalaryTable.Columns)
+                                {
+                                    <td>@col.ColumnName</td>
+                                }
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="tablebody">
+                        <table class="body table-hover table-click-effect" border="1" id="table_body">
+                            @for (int i = 0; i < Model.SalaryTable.Rows.Count; i++)
+                            {
+                                <tr>
+                                    @if (Model.SalaryTable.Rows[i][0] != "")
+                                    {
+                                        <td><div class=@Model.SalaryTable.Rows[i][1]></div></td>
+                                        <td><input type="checkbox" name="selectOption" value=@Model.SalaryTable.Rows[i][1] /></td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                        <td></td>
+                                    }
+                                    @for (int field = 0; field < Model.SalaryTable.Columns.Count; field++)
+                                    {
+                                        <td>@(Model.SalaryTable.Rows[i][field])</td>
+                                    }
+                                </tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script src="~/Content/jquery.toggle-password.min.js"></script>
+    <script src="~/Scripts/jquery.form.min.js"></script>
+    <script src="~/Content/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
+    <style type="text/css">
+        .tablebox {
+            overflow-y: hidden;
+            overflow-x: auto;
+            height: 720px;
+            width: auto;
+            min-height: 150px;
+            position: relative;
+            margin-top: 4px;
+            margin-left: 2px;
+            padding-top: -2px;
+            padding-bottom: 4px;
+            border: 3px solid #009933;
+            table-layout: fixed;
+        }
+
+        .tablehead {
+            position: absolute;
+            width: 2400px;
+            left: 0;
+        }
+
+        .tablebody {
+            position: absolute;
+            width: 2420px;
+            height: 620px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            left: 0;
+        }
+
+        td {
+            width: 88px;
+            white-space: normal;
+        }
+
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+            table-layout: fixed;
+        }
+
+        .tbodyset {
+            overflow-y: scroll;
+        }
+
+        .correctStyle {
+            color: green;
+            text-align: center;
+            font: larger,bolder;
+        }
+
+        .errorStyle {
+            color: red;
+            text-align: center;
+            font: larger,bolder;
+        }
+        .emailStyle {
+        height:120px;
+        width:1050px;
+        max-width:1200px;
+        }
+    </style>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#txtMonthSelector").datepicker({
+                format: 'mm/yyyy',
+                startView: 1,
+                minViewMode: 1,
+                autoclose: true
+            });
+        });
+
+        $(document).ready(function () {
+            $("#MenuSalaryMails").addClass("selected");
+            $("#management").addClass("selected");
+        });
+
+        $(function () {
+            $('#password').togglePassword({
+                el: '#emailPassword'
+            });
+        });
+        $(document).ready(function () {
+            var titleHeight = $(".tablehead").height();
+            var titltWidth = $(".tablehead").width();
+            $(".tablebody").css("top", titleHeight);
+            $(".tablebody").css("width", titltWidth + 17);
+
+
+            //var title = document.getElementById("table_head").rows[0];
+            //for (var i = 0; i < title.cells.length; i++) {
+            //    title.cells[i].style.width = "88px";
+            //}
+            //var rows = document.getElementById("table_body").rows;
+            //for (var i = 0; i < rows.length; i++) {
+            //    for (var j = 0; j < rows[i].cells.length; j++) {
+            //        rows[i].cells[j].style.width = "88px";
+            //    }
+            //}
+        });
+
+        $("#selectAll").click(function () {
+            var so = document.getElementsByName("selectOption");
+            var sa = document.getElementById("selectAll");
+
+            if (sa.checked == true) {
+                for (var i = 0; i < so.length; i++) {
+                    so[i].checked = true;
+                }
+            }
+            else if (sa.checked == false) {
+                for (var i = 0; i < so.length; i++) {
+                    so[i].checked = false;
+                }
+            }
+        });
+
+        $(document).ready(function () {
+            var $clickedRow = null;
+            $(".table-click-effect tbody tr").click(function () {
+                if ($clickedRow != null)
+                    $clickedRow.removeClass("row-clicked");
+                $(this).addClass("row-clicked");
+                $clickedRow = $(this);
+            });
+        });
+
+        function transferTableChecked() {
+            var $emailStyle = $("#styleText").val();
+            var head = document.getElementById("table_head").rows[0].cells;
+            var body = document.getElementById("table_body").rows;
+            var head_content = [];
+            var body_content = [];
+            for (var i = 0; i < head.length - 2; i++) {
+                head_content[i] = [];
+                head_content[i].push(head[i + 2].innerHTML);
+            }
+            for (var i = 0; i < body.length; i++) {
+                body_content[i] = [];
+                for (var j = 0; j < body[i].cells.length - 2; j++) {
+                    body_content[i][j] = [];
+                    body_content[i][j].push(body[i].cells[j + 2].innerHTML);
+                }
+            }
+
+            var address = $("#address").val();
+            var password = $("#password").val();
+
+            var checked_value = [];
+            var checked_name = document.getElementsByName("selectOption");
+            for (var i = 0; i < checked_name.length; i++) {
+                if (checked_name[i].checked == true) {
+                    checked_value.push(checked_name[i].value);
+                }
+            }
+            var tableName = $("#excelName").val();
+            var month = $("#txtMonthSelector").val();
+            if (checked_value.length == 0) {
+                alert("请至少选择一个邮件发送者！");
+                return false;
+            }
+            $.ajax({
+                type: "post",
+                url: "/Home/SendMail",
+                data: { "head": head_content, "body": body_content, "fromAddress": address, "fromPassword": password, "checkedValue": checked_value, "selectMonth": month, "tableName": tableName, "emailStyle": $emailStyle },
+                dataType: "json",
+                success: function (data) {
+                    var m = [];
+                    for (var key in data) {
+                        m.push(data[key]);
+                    }
+                    for (var i = 0; i < m.length; i++) {
+                        $("." + m[i]).html("√");
+                        $("." + m[i]).addClass("correctStyle");
+                    }
+                    alert(m + " 邮件发送成功");
+                }
+            });
+        }
+    </script>
+}
+
+@section styles{
+    <link href="~/Content/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+}

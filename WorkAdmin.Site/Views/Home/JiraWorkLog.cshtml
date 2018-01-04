@@ -1,0 +1,269 @@
+﻿@using WorkAdmin.Models.ViewModels
+@using System.Collections.Generic
+@model JiraWorkLogViewModel
+@{
+    ViewBag.Title = "Jira Work Log";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="panel">
+    <div class="panel-body" style="min-height:600px;">
+        <div class="row" style="margin:10px 3px 15px 3px;">
+            @using (Html.BeginForm("JiraWorkLog", "Home", FormMethod.Post, new { @class = "form form-horizontal", id = "formContent" }))
+            {
+                @Html.AntiForgeryToken()
+                <table class="">
+                    <tr>
+                        <th class="col-sm-3" style="padding-top:10px">
+                            <form class="form-horizontal">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-4">Start&nbsp;Time: </label>
+                                    <div class="col-sm-8">
+                                        <input type="text" id="startTime" class="form-control" placeholder="pls enter startTime" name="StartDate" value="@Model.SearchInput.StartDate" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-sm-4">End&nbsp;Time:</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" id="endTime" class="form-control" placeholder="pls enter endTime" name="EndDate" value="@Model.SearchInput.EndDate" />
+                                    </div>
+                                </div>
+
+                            </form>
+                        </th>
+                        <th class="col-sm-2" style="padding-top:10px">
+                            <div style="padding-left:20px; padding-bottom:20px" class="col-sm-8">
+                                <div class="radio">
+                                    <label>
+                                        <input type="radio" name="SearchType" id="SearchProject" value="SearchProject" onclick="showOrHide2()" checked="checked">search&nbsp;project
+                                    </label>
+                                </div>
+                                <div class="radio">
+                                    <label>
+                                        <input type="radio" name="SearchType" id="SearchUser" value="SearchUser" onclick="showOrHide1()">search&nbsp;user
+                                    </label>
+                                </div>
+                            </div>
+                        </th>
+                        <th class="col-sm-2">
+                            <div class="form-group col-sm-4" id="userDiv" style="padding-bottom:10px">
+                                <label class="col-sm-8" style="padding-bottom:10px">User&nbsp;name: </label>
+                                <div class="col-sm-8">
+                                    <input type="text" id="userName" class="form-control" style="width:180px;text-align:left" placeholder="not required" name="SelectedUser" value="@Model.SearchInput.SelectedUser">
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-3" id="projectDiv" style="padding-bottom:10px">
+                                <label class="col-sm-5" style="padding-bottom:10px">Project:</label>
+                                <div class="col-sm-8">
+                                    <select class="form-control " id="project" name="SelectedProject" style="width:180px;text-align:left" value="@Model.SearchInput.SelectedProject">
+                                        <option value="All">All</option>
+                                        @{foreach (var project in Model.JiraWorklogProject)
+                                        {
+                                            <option value="@project.projectName">@project.projectName</option>
+                                        }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </th>
+                        <th class="col-sm-1">
+                            <div class="" style="padding-bottom:10px; padding-left:10px; padding-top:20px">
+                                <input type="submit" class="btn btn-primary" value="Search" id="button">
+                            </div>
+                        </th>
+                        <th class="col-sm-4"></th>
+                    </tr>
+                </table>
+            }
+            @if (ViewBag.search == true)
+            {
+                <label style="font-weight:normal;font-size:10px;color:gray;">本次查询条件为(日期：@Model.SearchInput.StartDate 至 @Model.SearchInput.EndDate;</label>
+                if (ViewBag.showOrHint == false)
+                {
+                    if (@Model.SearchInput.SelectedUser == null)
+                    {
+                        <label style="font-weight:normal;font-size:10px;color:gray">
+                            用户: All)
+                        </label>
+                    }
+                    else
+                    {
+                        <label style="font-weight:normal;font-size:10px;color:gray">
+                            用户: @Model.SearchInput.SelectedUser)
+                        </label>
+                    }
+
+                }
+                else if (ViewBag.showOrHint == true)
+                {
+                    <label style="font-weight:normal;font-size:10px;color:gray">
+                        项目: @Model.SearchInput.SelectedProject)
+                    </label>
+                }
+            }
+            <div id="update">
+                <ul class="nav nav-tabs" style="padding :initial" role="tablist" id="myTab1">
+                    <li id="tab21" class="active"><a href="#Query_Worklog" role="tab" data-toggle="tab">Worklog Details</a></li>
+                    <li id="tab22"><a href="#TimeUsed" role="tab" data-toggle="tab">Worklog Time Used</a></li>
+                    @if (ViewBag.showOrHint == true)
+                    {
+                        <li id="tab23"><a href="#Members" role="tab" data-toggle="tab">Members</a></li>
+                    }
+                </ul>
+                <div class="tab-content" id="tab-list">
+                    <div class="tab-pane active" id="Query_Worklog">
+                        <table class="table table-bordered table-hover table-click-effect">
+                            <thead>
+                                <tr>
+                                    <th>Update Time </th>
+                                    <th>Project</th>
+                                    <th>Name</th>
+                                    <th>Worklog Content</th>
+                                    <th>Timeworked</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var worklog in Model.WorkLogDetails)
+                                {
+                                    <tr>
+                                        <td style="width:110px">@Html.DisplayFor(model => worklog.UpdateTime)</td>
+                                        <td style="width:130px">@Html.DisplayFor(model => worklog.Project)</td>
+                                        <td style="width:120px">@Html.DisplayFor(model => worklog.DisplayName)</td>
+                                        <td>@Html.DisplayFor(model => worklog.WorkLogBody)</td>
+                                        <td style="width:80px">@Html.DisplayFor(model => worklog.TimeWorked)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    @if (ViewBag.showOrHint == false)
+                    {
+                        <div class="tab-pane" id="TimeUsed">
+                            <table class="table table-bordered table-hover table-click-effect">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Project</th>
+                                        <th>Timeworked</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var TimeUsed in Model.WorkLogTimeUsedData)
+                                    {
+                                        <tr>
+                                            <td>@Html.DisplayFor(model => TimeUsed.DisplayName)</td>
+                                            <td>@Html.DisplayFor(model => TimeUsed.Project)</td>
+                                            <td>@Html.DisplayFor(model => TimeUsed.TimeWorked)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else if (ViewBag.showOrHint == true)
+                    {
+                        <div class="tab-pane" id="TimeUsed">
+                            <table class="table table-bordered table-hover table-click-effect">
+                                <thead>
+                                    <tr>
+                                        <th>Project</th>
+                                        <th>Name</th>
+                                        <th>Timeworked</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var TimeUsed in Model.WorkLogTimeUsedData)
+                                    {
+                                        <tr>
+                                            <td>@Html.DisplayFor(model => TimeUsed.Project)</td>
+                                            <td>@Html.DisplayFor(model => TimeUsed.DisplayName)</td>
+                                            <td>@Html.DisplayFor(model => TimeUsed.TimeWorked)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="tab-pane" id="Members">
+                            <table class="table table-bordered table-hover table-click-effect">
+                                <thead>
+                                    <tr>
+                                        <th>Project</th>
+                                        <th>Name</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var Merbers in Model.WorkLogMembers)
+                                    {
+                                        <tr>
+                                            <td>@Html.DisplayFor(model => Merbers.Project)</td>
+                                            <td>@Html.DisplayFor(model => Merbers.DisplayName)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css" />
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<link rel="stylesheet" href="/resources/demos/style.css" />
+<script src="~/Content/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+@section Scripts{
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $("#startTime,#endTime").datepicker({
+                format: 'yyyy-mm-dd',
+                minView: "month",
+                todayBtn: 'linked',
+                autoclose: true
+            });
+        })
+
+        $(document).ready(function () {
+            var userSource = [];
+            @foreach (var name in Model.JiraWorklogUsersName)
+            {
+                @:userSource.push("@name.usersName")
+                    }
+            $("#userName").autocomplete(
+                {
+                    source: userSource,
+                });
+        });
+
+        $("#menuJiraWorkLog").addClass("selected");
+
+        function showOrHide1() {
+            document.getElementById("userDiv").style.display = "";
+            document.getElementById("projectDiv").style.display = "none";
+            document.getElementById("userName").value ="";
+        }
+
+        function showOrHide2() {
+            document.getElementById("userDiv").style.display = "none";
+            document.getElementById("projectDiv").style.display = "";
+        }
+
+        $(document).ready(function () {
+            if (@Model.SearchInput.SearchType == SearchUser)
+            {
+                document.getElementById("SearchUser").checked =true;
+                document.getElementById("projectDiv").style.display = "none";
+                document.getElementById("userDiv").style.display = "";
+            }
+            else if (@Model.SearchInput.SearchType == SearchProject)
+            {
+                document.getElementById("SearchProject").checked =true;
+                document.getElementById("projectDiv").style.display = "";
+                document.getElementById("userDiv").style.display = "none";
+                document.getElementById("project").value = "@Model.SearchInput.SelectedProject";
+            }
+        })
+    </script>
+}

@@ -1,0 +1,97 @@
+﻿@using WorkAdmin.Models.Entities
+@model IEnumerable<User>
+@{
+    ViewBag.Title = "Excluded User List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="panel">
+    <div class="panel-body">
+        <span id="spanMsg" class="text-danger"></span>
+        <table class="table table-hover table-click-effect">
+            <thead>
+                <tr>
+                    <th>User Login Name</th>
+                    <th>Full Name</th>
+                    <th>English Name</th>
+                    <th>Chinese Name</th>
+                    <th>Email Address</th>
+                    <th>Is Manager</th>
+                    <th>Is Working At Home</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Count() > 0)
+                {
+                    foreach (var user in Model)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(r => user.LoginName)</td>
+                            <td>@Html.DisplayFor(r => user.FullName)</td>
+                            <td>@Html.DisplayFor(r => user.EnglishName)</td>
+                            <td>@Html.DisplayFor(r=>user.ChineseName)</td>
+                            <td>@Html.DisplayFor(r => user.EmailAddress)</td>
+                            <td>
+                                @(user.IsManager ? "Yes" : "")
+                            </td>
+                            <td>
+                                @(user.IsWorkingAtHome ? "Yes" : "")
+                            </td>
+                            <td>@Html.ActionLink("Update", "UpdateUser", new { id = user.Id, from = "ExcludedUserList" }, new { @class = "update-user" })</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="3">No data available</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+@section Scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#menuExcludedUsers").addClass("selected");
+            $("#management").addClass("selected");
+            var $spanMsg = $("#spanMsg");
+            $(".update-user").click(function (e) {
+                e.preventDefault();
+                var actionUrl = $(this).attr("href");
+                $spanMsg.text("").hide();
+                $.ajax({
+                    url: actionUrl,
+                    type: "GET",
+                    dataType: "HTML",
+                    success: function (data) {
+                        $(".modal").empty().remove();
+                        $(document.body).append(data);
+                        $(".modal").modal();
+                    },
+                    error: function (xhr) {
+                        $spanMsg.text("加载数据异常！").show();
+                    },
+                    async: false
+                });
+            });
+        });
+
+        @if (Model.Count() > 1)
+        { 
+            <text>
+               $(document).ready(function () {
+                   var $clickedRow=null;
+                   $(".table-click-effect tbody tr").click(function(){
+                       if($clickedRow!=null)
+                           $clickedRow.removeClass("row-clicked");
+                       $(this).addClass("row-clicked");
+                       $clickedRow=$(this);
+                   });
+               });
+            </text>
+        }
+    </script>
+}

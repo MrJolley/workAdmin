@@ -1,0 +1,76 @@
+﻿
+@{
+    ViewBag.Title = "Export WorkReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="panel panel-default" style="margin: 20px; min-height: 200px;">
+    <div class="panel-heading">
+        @ViewBag.Title Excel
+    </div>
+    <div class="panel-body" style="min-height:200px;">
+        <form class="form-horizontal">
+            <div style="padding: 10px;">
+                <div class="form-group">
+                    <label for="fileDate" class="control-label col-sm-2">文件日期：</label>
+                    <input type="text" id="excelDate" name="excelDate" class="form-control col-sm-10" />
+                </div>
+                <div>
+                    <label class="col-sm-2"></label>
+                    <input type="button" class="btn btn-primary" value="下载" onclick="downloadData();" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts{ 
+    <script src="~/Content/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+<script src="~/Content/bootstrap-datepicker/js/bootstrap-datepicker.zh-CN.min.js"></script>
+<script type="text/javascript" src="~/Scripts/alertify.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#management").addClass("selected");
+            $("#menuExportReport").addClass("selected");
+            var month = new Date().getMonth() + 1;
+            $('#excelDate').val(new Date().getFullYear() + '-' + (month < 10 ? '0' + month : month));
+            $("#excelDate").datepicker({
+                format: 'yyyy-MM',
+                language: 'zh-CN',
+                startView: 1,
+                minViewMode: 1,
+                orientation: "bottom-left",
+                todayBtn: 'linked',
+                autoclose: true
+            });
+        });
+
+        function downloadData() {
+            var $date = $('#excelDate').val();
+            if ($date == '' || !$date.match(/\d{4}-\d{2}/)) {
+                alertify.alert('文件日期错误');
+                return;
+            }
+            var splitStr = $date.split('-');
+            $.ajax({
+                url: 'GetWorkReportExist',
+                type: 'post',
+                async: false,
+                data: { 'year': splitStr[0], 'month': splitStr[1] },
+                dataType: 'json',
+                success: function (response) {
+                    if (response == true) {
+                        window.open('GetWorkReportFile?year=' + splitStr[0] + '&&month=' + splitStr[1]);
+                    } else {
+                        alertify.alert('当前日期暂无数据可供下载，请选择其他时间段');
+                    }
+                }
+            });
+
+        }
+    </script>
+    }
+@section styles{
+    <link href="~/Content/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link type="text/css" rel="stylesheet" href="~/Content/alertify.default.min.css" />
+    <link type="text/css" rel="stylesheet" href="~/Content/alertify.min.css" />
+}

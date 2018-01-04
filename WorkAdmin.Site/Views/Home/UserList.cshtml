@@ -1,0 +1,141 @@
+﻿@using WorkAdmin.Models.Entities
+@model WorkAdmin.Models.ViewModels.UserListViewModel
+@{
+    ViewBag.Title = "User List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="panel">    
+    <div class="panel-body" style="min-height:600px;">
+        <div class="row" style="margin:10px 3px 15px 3px;">
+            @using (Html.BeginForm("UserList", "Home", FormMethod.Get, new { @class = "form form-horizontal" }))
+            {
+                <div class="pull-left">
+                    Search:
+                    <input type="text" name="filter" id="txtUserFilter" value="@Model.Filter" placeholder="Press Enter to search" />
+                </div>
+            }
+        </div>
+        <span id="spanMsg" class="text-danger"></span>
+        <table class="table table-hover table-click-effect">
+            <thead>
+                <tr>
+                    <th>User Login Name</th>
+                    <th>Full Name</th>
+                    <th>English Name</th>
+                    <th>Chinese Name</th>
+                    <th>Email Address</th>
+                    <th>Is Manager</th>
+                    <th>level</th>
+                    <th>department</th>
+                    <th>project</th>
+                    <th>position</th>
+                    <th>Is Working At Home</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Users.Count > 0)
+                {
+                    foreach (var user in Model.Users)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(r => user.LoginName)</td>
+                            <td>@Html.DisplayFor(r => user.FullName)</td>
+                            <td>@Html.DisplayFor(r => user.EnglishName)</td>
+                            <td>@Html.DisplayFor(r=>user.ChineseName)</td>
+                            <td>@Html.DisplayFor(r => user.EmailAddress)</td>
+                            <td>
+                                @(user.IsManager ? "Yes" : "")
+                            </td>
+                            <td>@user.rankLevel</td>
+                            <td>@user.department</td>
+                            <td>@user.project</td>
+                            <td>@user.position</td>
+                            <td>
+                                @(user.IsWorkingAtHome ? "Yes" : "")
+                            </td>
+                            <td>@Html.ActionLink("Update", "UpdateUser", new { id = user.Id, from = "UserList",filter=@Model.Filter}, new { @class = "update-user" })</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="3">No data available</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+@section Scripts{
+<script src="~/Content/jquery-ui.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var userSource = [];
+        @foreach (var name in Model.UserAutoCompletionSource)
+            {
+                @:userSource.push("@name");
+            }
+        $("#txtUserFilter").autocomplete(
+            {
+                source: userSource,
+                minLength: 2
+            }); javascript: void (0)
+        $("#txtUserFilter").keypress(function (e) {
+            if (e.keyCode == 13) {
+                this.form.submit();
+            }
+
+        });
+    });
+</script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#menuUsers").addClass("selected");
+            $("#management").addClass("selected");
+            var $spanMsg = $("#spanMsg");
+            $(".update-user").click(function (e) {
+                e.preventDefault();
+                var actionUrl = $(this).attr("href");
+                $spanMsg.text("").hide();
+                $.ajax({
+                    url: actionUrl,
+                    type: "GET",
+                    dataType: "HTML",
+                    success: function (data) {
+                        $(".modal").empty().remove();
+                        $(document.body).append(data);
+                        $(".modal").modal();
+                    },
+                    error: function (xhr) {
+                        $spanMsg.text("加载数据异常！").show();
+                    },
+                    async: false
+                });
+            });
+        });
+
+        @if (Model.Users.Count> 1)
+        { 
+            <text>
+               $(document).ready(function () {
+                var $clickedRow=null;
+                    $(".table-click-effect tbody tr").click(function(){
+                        if($clickedRow!=null)
+                            $clickedRow.removeClass("row-clicked");
+                        $(this).addClass("row-clicked");
+                        $clickedRow=$(this);
+                    });
+                });
+            </text>
+        }
+
+    </script>
+}
+
+@section styles{
+    <link href="~/Content/jquery-ui.css" rel="stylesheet" />
+}

@@ -1,0 +1,148 @@
+﻿@{
+    ViewBag.Title = "Worklog Time";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="panel panel-default" style="margin: 20px; min-height: 250px;">
+    <div class="panel-heading">
+        @ViewBag.Title Upload
+    </div>
+    <div class="panel-body">
+        <form class="form-horizontal">
+            <div style="padding: 10px;">
+                <div class="form-group">
+                    <label for="fileDate" class="control-label col-sm-2">文件日期：</label>
+                    <input type="text" id="fileDate" name="fileDate" class="form-control col-sm-10" />
+                </div>
+                <div class="form-group">
+                    <label for="worklogFile" class="control-label col-sm-2">选择文件：</label>
+                    <input type="file" id="worklogFile" name="worklogFile" class="form-control col-sm-10" />
+                </div>
+                <div>
+                    <label class="col-sm-2"></label>
+                    <input type="button" class="btn btn-primary" value="上传" onclick="importData();" />
+                    <span class="text-danger error-message" style="margin-left: 10px;"></span>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="panel panel-default" style="margin: 20px; min-height: 200px;">
+    <div class="panel-heading">
+        @ViewBag.Title Download
+    </div>
+    <div class="panel-body">
+        <form class="form-horizontal">
+            <div style="padding: 10px;">
+                <div class="form-group">
+                    <label for="fileDate" class="control-label col-sm-2">文件日期：</label>
+                    <input type="text" id="excelDate" name="excelDate" class="form-control col-sm-10" />
+                </div>
+                <div>
+                    <label class="col-sm-2"></label>
+                    <input type="button" class="btn btn-primary" value="下载" onclick="downloadData();" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts{
+<script src="~/Content/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="~/Content/bootstrap-datepicker/js/bootstrap-datepicker.zh-CN.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/alertify.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#menuWorkTime").addClass("selected");
+
+            $('#fileDate').val(new Date().getFullYear());
+            $("#fileDate").datepicker({
+                format: 'yyyy',
+                language: 'zh-CN',
+                startView: 2,
+                minViewMode: 2,
+                todayBtn: 'linked',
+                autoclose: true
+            });
+            var month = new Date().getMonth() + 1;
+            $('#excelDate').val(new Date().getFullYear() + '-' + (month < 10 ? '0' + month : month));
+            $("#excelDate").datepicker({
+                format: 'yyyy-MM',
+                language: 'zh-CN',
+                startView: 1,
+                minViewMode: 1,
+                todayBtn: 'linked',
+                autoclose: true
+            });
+        });
+
+        function importData() {
+            var $date = $('#fileDate').val();
+            var $file = $('input[type=file]').get(0).files[0];
+            if ($date == '' || isNaN($date)) {
+                alertify.alert('文件日期错误');
+                return;
+            }
+            if ($file == undefined) {
+                alertify.alert('请选择一个文件');
+                return;
+            }
+            if ($file.name.indexOf('.xlsx') != ($file.name.length - 5) &&
+                $file.name.indexOf('.xls') != ($file.name.length - 4)) {
+                alertify.alert('文件格式错误');
+                return;
+            }
+            if ($file.length == 0) {
+                alertify.alert('文件内容不能为空');
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append('date', $date);
+            formData.append('file', $file);
+            $.ajax({
+                url: 'WorklogTimeFileHandler',
+                type: 'post',
+                data: formData,
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    $('.error-message').html(response);
+                    alertify.alert(response);
+                }
+            });
+        }
+
+        function downloadData() {
+            var $date = $('#excelDate').val();
+            if ($date == '' || !$date.match(/\d{4}-\d{2}/)) {
+                alertify.alert('文件日期错误');
+                return;
+            }
+            var splitStr = $date.split('-');
+            $.ajax({
+                url: 'GetWorklogFileExist',
+                type: 'post',
+                async: false,
+                data: { 'year': splitStr[0], 'month': splitStr[1] },
+                dataType: 'json',
+                success: function (response) {
+                    if (response == true) {
+                        console.log('可下载');
+                        window.open('GetWorklogTimesFile?year=' + splitStr[0] + '&&month=' + splitStr[1]);
+
+                    } else {
+                        alertify.alert('当前日期暂无数据可供下载，请先上传数据');
+                    }
+                    console.log(response);
+                }
+            });
+            
+        }
+    </script>
+}
+@section styles{
+    <link href="~/Content/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link type="text/css" rel="stylesheet" href="~/Content/alertify.default.min.css" />
+    <link type="text/css" rel="stylesheet" href="~/Content/alertify.min.css" />
+}
