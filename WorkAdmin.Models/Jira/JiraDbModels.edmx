@@ -1,0 +1,343 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="Jira.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="app_user">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="numeric" Precision="18" Scale="0" Nullable="false" />
+          <Property Name="user_key" Type="nvarchar" MaxLength="255" />
+          <Property Name="lower_user_name" Type="nvarchar" MaxLength="255" />
+        </EntityType>
+        <EntityType Name="cwd_user">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="numeric" Precision="18" Scale="0" Nullable="false" />
+          <Property Name="directory_id" Type="numeric" Precision="18" Scale="0" />
+          <Property Name="user_name" Type="nvarchar" MaxLength="255" />
+          <Property Name="lower_user_name" Type="nvarchar" MaxLength="255" />
+          <Property Name="active" Type="int" />
+          <Property Name="created_date" Type="datetime" />
+          <Property Name="updated_date" Type="datetime" />
+          <Property Name="first_name" Type="nvarchar" MaxLength="255" />
+          <Property Name="lower_first_name" Type="nvarchar" MaxLength="255" />
+          <Property Name="last_name" Type="nvarchar" MaxLength="255" />
+          <Property Name="lower_last_name" Type="nvarchar" MaxLength="255" />
+          <Property Name="display_name" Type="nvarchar" MaxLength="255" />
+          <Property Name="lower_display_name" Type="nvarchar" MaxLength="255" />
+          <Property Name="email_address" Type="nvarchar" MaxLength="255" />
+          <Property Name="lower_email_address" Type="nvarchar" MaxLength="255" />
+          <Property Name="CREDENTIAL" Type="nvarchar" MaxLength="255" />
+          <Property Name="deleted_externally" Type="int" />
+          <Property Name="EXTERNAL_ID" Type="nvarchar" MaxLength="255" />
+        </EntityType>
+        <EntityType Name="jiraissue">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="numeric" Precision="18" Scale="0" Nullable="false" />
+          <Property Name="pkey" Type="nvarchar" MaxLength="255" />
+          <Property Name="issuenum" Type="numeric" Precision="18" Scale="0" />
+          <Property Name="PROJECT" Type="numeric" Precision="18" Scale="0" />
+          <Property Name="REPORTER" Type="nvarchar" MaxLength="255" />
+          <Property Name="ASSIGNEE" Type="nvarchar" MaxLength="255" />
+          <Property Name="CREATOR" Type="nvarchar" MaxLength="255" />
+          <Property Name="issuetype" Type="nvarchar" MaxLength="255" />
+          <Property Name="SUMMARY" Type="nvarchar" MaxLength="255" />
+          <Property Name="DESCRIPTION" Type="ntext" />
+          <Property Name="ENVIRONMENT" Type="ntext" />
+          <Property Name="PRIORITY" Type="nvarchar" MaxLength="255" />
+          <Property Name="RESOLUTION" Type="nvarchar" MaxLength="255" />
+          <Property Name="issuestatus" Type="nvarchar" MaxLength="255" />
+          <Property Name="CREATED" Type="datetime" />
+          <Property Name="UPDATED" Type="datetime" />
+          <Property Name="DUEDATE" Type="datetime" />
+          <Property Name="RESOLUTIONDATE" Type="datetime" />
+          <Property Name="VOTES" Type="numeric" Precision="18" Scale="0" />
+          <Property Name="WATCHES" Type="numeric" Precision="18" Scale="0" />
+          <Property Name="TIMEORIGINALESTIMATE" Type="numeric" Precision="18" Scale="0" />
+          <Property Name="TIMEESTIMATE" Type="numeric" Precision="18" Scale="0" />
+          <Property Name="TIMESPENT" Type="numeric" Precision="18" Scale="0" />
+          <Property Name="WORKFLOW_ID" Type="numeric" Precision="18" Scale="0" />
+          <Property Name="SECURITY" Type="numeric" Precision="18" Scale="0" />
+          <Property Name="FIXFOR" Type="numeric" Precision="18" Scale="0" />
+          <Property Name="COMPONENT" Type="numeric" Precision="18" Scale="0" />
+        </EntityType>
+        <EntityType Name="project">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="numeric" Precision="18" Scale="0" Nullable="false" />
+          <Property Name="pname" Type="nvarchar" MaxLength="255" />
+          <Property Name="URL" Type="nvarchar" MaxLength="255" />
+          <Property Name="LEAD" Type="nvarchar" MaxLength="255" />
+          <Property Name="DESCRIPTION" Type="ntext" />
+          <Property Name="pkey" Type="nvarchar" MaxLength="255" />
+          <Property Name="pcounter" Type="numeric" Precision="18" Scale="0" />
+          <Property Name="ASSIGNEETYPE" Type="numeric" Precision="18" Scale="0" />
+          <Property Name="AVATAR" Type="numeric" Precision="18" Scale="0" />
+          <Property Name="ORIGINALKEY" Type="nvarchar" MaxLength="255" />
+        </EntityType>
+        <EntityType Name="worklog">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="numeric" Precision="18" Scale="0" Nullable="false" />
+          <Property Name="issueid" Type="numeric" Precision="18" Scale="0" />
+          <Property Name="AUTHOR" Type="nvarchar" MaxLength="255" />
+          <Property Name="grouplevel" Type="nvarchar" MaxLength="255" />
+          <Property Name="rolelevel" Type="numeric" Precision="18" Scale="0" />
+          <Property Name="worklogbody" Type="ntext" />
+          <Property Name="CREATED" Type="datetime" />
+          <Property Name="UPDATEAUTHOR" Type="nvarchar" MaxLength="255" />
+          <Property Name="UPDATED" Type="datetime" />
+          <Property Name="STARTDATE" Type="datetime" />
+          <Property Name="timeworked" Type="numeric" Precision="18" Scale="0" />
+        </EntityType>
+        <EntityContainer Name="JiraStoreContainer">
+          <EntitySet Name="app_user" EntityType="Self.app_user" Schema="jira" store:Type="Tables" />
+          <EntitySet Name="cwd_user" EntityType="Self.cwd_user" Schema="jira" store:Type="Tables" />
+          <EntitySet Name="jiraissue" EntityType="Self.jiraissue" Schema="jira" store:Type="Tables" />
+          <EntitySet Name="project" EntityType="Self.project" Schema="jira" store:Type="Tables" />
+          <EntitySet Name="worklog" EntityType="Self.worklog" Schema="jira" store:Type="Tables" />
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="Jira" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="app_user">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Decimal" Precision="18" Scale="0" Nullable="false" />
+          <Property Name="user_key" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="lower_user_name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="cwd_user">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Decimal" Precision="18" Scale="0" Nullable="false" />
+          <Property Name="directory_id" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="user_name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="lower_user_name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="active" Type="Int32" />
+          <Property Name="created_date" Type="DateTime" Precision="3" />
+          <Property Name="updated_date" Type="DateTime" Precision="3" />
+          <Property Name="first_name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="lower_first_name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="last_name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="lower_last_name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="display_name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="lower_display_name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="email_address" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="lower_email_address" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="CREDENTIAL" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="deleted_externally" Type="Int32" />
+          <Property Name="EXTERNAL_ID" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="jiraissue">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Decimal" Precision="18" Scale="0" Nullable="false" />
+          <Property Name="pkey" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="issuenum" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="PROJECT" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="REPORTER" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="ASSIGNEE" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="CREATOR" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="issuetype" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="SUMMARY" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="DESCRIPTION" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ENVIRONMENT" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="PRIORITY" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="RESOLUTION" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="issuestatus" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="CREATED" Type="DateTime" Precision="3" />
+          <Property Name="UPDATED" Type="DateTime" Precision="3" />
+          <Property Name="DUEDATE" Type="DateTime" Precision="3" />
+          <Property Name="RESOLUTIONDATE" Type="DateTime" Precision="3" />
+          <Property Name="VOTES" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="WATCHES" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="TIMEORIGINALESTIMATE" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="TIMEESTIMATE" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="TIMESPENT" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="WORKFLOW_ID" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="SECURITY" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="FIXFOR" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="COMPONENT" Type="Decimal" Precision="18" Scale="0" />
+        </EntityType>
+        <EntityType Name="project">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Decimal" Precision="18" Scale="0" Nullable="false" />
+          <Property Name="pname" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="URL" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="LEAD" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="DESCRIPTION" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="pkey" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="pcounter" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="ASSIGNEETYPE" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="AVATAR" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="ORIGINALKEY" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="worklog">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Decimal" Precision="18" Scale="0" Nullable="false" />
+          <Property Name="issueid" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="AUTHOR" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="grouplevel" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="rolelevel" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="worklogbody" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CREATED" Type="DateTime" Precision="3" />
+          <Property Name="UPDATEAUTHOR" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="UPDATED" Type="DateTime" Precision="3" />
+          <Property Name="STARTDATE" Type="DateTime" Precision="3" />
+          <Property Name="timeworked" Type="Decimal" Precision="18" Scale="0" />
+        </EntityType>
+        <EntityContainer Name="JiraDbContext" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="app_user" EntityType="Self.app_user" />
+          <EntitySet Name="cwd_user" EntityType="Self.cwd_user" />
+          <EntitySet Name="jiraissues" EntityType="Self.jiraissue" />
+          <EntitySet Name="projects" EntityType="Self.project" />
+          <EntitySet Name="worklogs" EntityType="Self.worklog" />
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="JiraStoreContainer" CdmEntityContainer="JiraDbContext">
+          <EntitySetMapping Name="app_user">
+            <EntityTypeMapping TypeName="Jira.app_user">
+              <MappingFragment StoreEntitySet="app_user">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="user_key" ColumnName="user_key" />
+                <ScalarProperty Name="lower_user_name" ColumnName="lower_user_name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="cwd_user">
+            <EntityTypeMapping TypeName="Jira.cwd_user">
+              <MappingFragment StoreEntitySet="cwd_user">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="directory_id" ColumnName="directory_id" />
+                <ScalarProperty Name="user_name" ColumnName="user_name" />
+                <ScalarProperty Name="lower_user_name" ColumnName="lower_user_name" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="updated_date" ColumnName="updated_date" />
+                <ScalarProperty Name="first_name" ColumnName="first_name" />
+                <ScalarProperty Name="lower_first_name" ColumnName="lower_first_name" />
+                <ScalarProperty Name="last_name" ColumnName="last_name" />
+                <ScalarProperty Name="lower_last_name" ColumnName="lower_last_name" />
+                <ScalarProperty Name="display_name" ColumnName="display_name" />
+                <ScalarProperty Name="lower_display_name" ColumnName="lower_display_name" />
+                <ScalarProperty Name="email_address" ColumnName="email_address" />
+                <ScalarProperty Name="lower_email_address" ColumnName="lower_email_address" />
+                <ScalarProperty Name="CREDENTIAL" ColumnName="CREDENTIAL" />
+                <ScalarProperty Name="deleted_externally" ColumnName="deleted_externally" />
+                <ScalarProperty Name="EXTERNAL_ID" ColumnName="EXTERNAL_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="jiraissues">
+            <EntityTypeMapping TypeName="Jira.jiraissue">
+              <MappingFragment StoreEntitySet="jiraissue">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="pkey" ColumnName="pkey" />
+                <ScalarProperty Name="issuenum" ColumnName="issuenum" />
+                <ScalarProperty Name="PROJECT" ColumnName="PROJECT" />
+                <ScalarProperty Name="REPORTER" ColumnName="REPORTER" />
+                <ScalarProperty Name="ASSIGNEE" ColumnName="ASSIGNEE" />
+                <ScalarProperty Name="CREATOR" ColumnName="CREATOR" />
+                <ScalarProperty Name="issuetype" ColumnName="issuetype" />
+                <ScalarProperty Name="SUMMARY" ColumnName="SUMMARY" />
+                <ScalarProperty Name="DESCRIPTION" ColumnName="DESCRIPTION" />
+                <ScalarProperty Name="ENVIRONMENT" ColumnName="ENVIRONMENT" />
+                <ScalarProperty Name="PRIORITY" ColumnName="PRIORITY" />
+                <ScalarProperty Name="RESOLUTION" ColumnName="RESOLUTION" />
+                <ScalarProperty Name="issuestatus" ColumnName="issuestatus" />
+                <ScalarProperty Name="CREATED" ColumnName="CREATED" />
+                <ScalarProperty Name="UPDATED" ColumnName="UPDATED" />
+                <ScalarProperty Name="DUEDATE" ColumnName="DUEDATE" />
+                <ScalarProperty Name="RESOLUTIONDATE" ColumnName="RESOLUTIONDATE" />
+                <ScalarProperty Name="VOTES" ColumnName="VOTES" />
+                <ScalarProperty Name="WATCHES" ColumnName="WATCHES" />
+                <ScalarProperty Name="TIMEORIGINALESTIMATE" ColumnName="TIMEORIGINALESTIMATE" />
+                <ScalarProperty Name="TIMEESTIMATE" ColumnName="TIMEESTIMATE" />
+                <ScalarProperty Name="TIMESPENT" ColumnName="TIMESPENT" />
+                <ScalarProperty Name="WORKFLOW_ID" ColumnName="WORKFLOW_ID" />
+                <ScalarProperty Name="SECURITY" ColumnName="SECURITY" />
+                <ScalarProperty Name="FIXFOR" ColumnName="FIXFOR" />
+                <ScalarProperty Name="COMPONENT" ColumnName="COMPONENT" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="projects">
+            <EntityTypeMapping TypeName="Jira.project">
+              <MappingFragment StoreEntitySet="project">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="pname" ColumnName="pname" />
+                <ScalarProperty Name="URL" ColumnName="URL" />
+                <ScalarProperty Name="LEAD" ColumnName="LEAD" />
+                <ScalarProperty Name="DESCRIPTION" ColumnName="DESCRIPTION" />
+                <ScalarProperty Name="pkey" ColumnName="pkey" />
+                <ScalarProperty Name="pcounter" ColumnName="pcounter" />
+                <ScalarProperty Name="ASSIGNEETYPE" ColumnName="ASSIGNEETYPE" />
+                <ScalarProperty Name="AVATAR" ColumnName="AVATAR" />
+                <ScalarProperty Name="ORIGINALKEY" ColumnName="ORIGINALKEY" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="worklogs">
+            <EntityTypeMapping TypeName="Jira.worklog">
+              <MappingFragment StoreEntitySet="worklog">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="issueid" ColumnName="issueid" />
+                <ScalarProperty Name="AUTHOR" ColumnName="AUTHOR" />
+                <ScalarProperty Name="grouplevel" ColumnName="grouplevel" />
+                <ScalarProperty Name="rolelevel" ColumnName="rolelevel" />
+                <ScalarProperty Name="worklogbody" ColumnName="worklogbody" />
+                <ScalarProperty Name="CREATED" ColumnName="CREATED" />
+                <ScalarProperty Name="UPDATEAUTHOR" ColumnName="UPDATEAUTHOR" />
+                <ScalarProperty Name="UPDATED" ColumnName="UPDATED" />
+                <ScalarProperty Name="STARTDATE" ColumnName="STARTDATE" />
+                <ScalarProperty Name="timeworked" ColumnName="timeworked" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
