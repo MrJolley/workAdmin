@@ -1,0 +1,423 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.IO;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
+using NPOI.HSSF.UserModel;
+using WorkAdmin.Models.ViewModels;
+using System.Data;
+using WorkAdmin.Models.Entities;
+
+namespace WorkAdmin.Logic.HolidayLogic
+{
+    public class FileUploadHelper
+    {
+        #region private field
+        private Stream _fileStream;
+        private IWorkbook _workBook;
+        string _fileName;
+        const string _chineseLocationName = "姓名";
+        private string _loginName;
+        #endregion
+
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="stream">文件流</param>
+        /// <param name="fileName">文件名，包括后缀</param>
+        public FileUploadHelper(Stream stream, string fileName, string loginName)
+        {
+            this._fileStream = stream;
+            this._fileName = fileName;
+            this._loginName = loginName;
+            BuildWorkbook();
+        }
+
+        /// <summary>
+        /// 读取当前年假，上一年年假结余的excel信息
+        /// </summary>
+        public HolidayResult ReadHolidayFile()
+        {
+            var sheet = this._workBook.GetSheetAt(0);
+            if (sheet == null)
+            {
+                return new HolidayResult()
+                {
+                    hasError = true,
+                    ErrorMsg = "当前文件无工作表数据"
+                };
+            }
+            IRow title = sheet.GetRow(1);
+            if (!title.GetCell(0, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString().Trim().Equals("序号"))
+            {
+                return new HolidayResult()
+                {
+                    hasError = true,
+                    ErrorMsg = "当前文件数据格式不正确，请确保'A1'单元格为数据起始点，其值为'序号'"
+                };
+            }
+            //读取特定的列数据，包括姓名，年假区间，上期/本期剩余年假时间，总共剩余年假
+            int nameCol = 0, regionCol = 0, totalCol = 0;
+            foreach (var item in title.Cells)
+            {
+                string val = item.ToString().Trim();
+                if (val.Equals("姓名"))
+                {
+                    nameCol = item.ColumnIndex;
+                }
+                else if (val.Equals("年假区间"))
+                {
+                    regionCol = item.ColumnIndex;
+                }
+                else if (val.StartsWith("剩余年假"))
+                {
+                    totalCol = item.ColumnIndex;
+                }
+            }
+            if (nameCol == 0 || regionCol == 0 || totalCol == 0)
+            {
+                return new HolidayResult()
+                {
+                    hasError = true,
+                    ErrorMsg = "当前文件数据格式不正确，请确保标题行含有'姓名'，'年假区间'，'剩余年假'列"
+                };
+            }
+            //读取所有年假信息
+            int cols = title.LastCellNum;
+            List<UserHoliday> result = new List<UserHoliday>();
+            var users = UserService.GetAllUsers();
+            string errorName = string.Empty;
+            try
+            {
+                for (int row = 3; row < sheet.LastRowNum + 1; row++)
+                {
+                    IRow sRow = sheet.GetRow(row);
+                    ICell sCell = sRow.GetCell(nameCol);
+                    if (sCell != null)
+                    {
+
+                        string name = sRow.GetCell(nameCol).ToString().Trim();
+                        if (string.IsNullOrWhiteSpace(name))
+                        {
+                            break; ;
+                        }
+                        if (!users.Any(r => r.ChineseName == name))
+                        {
+                            return new HolidayResult()
+                            {
+                                hasError = true,
+                                ErrorMsg = $"当前文件数据姓名格式不正确，位置：‘{name}’, 请确保中文名已持久化到数据库"
+                            };
+                        }
+                        //读取所有基本信息详情
+                        try
+                        {
+                            var user = users.Where(r => r.ChineseName == name).First();
+                            result.Add(new UserHoliday()
+                            {
+                                StaffName = name,
+                                StaffEmail = user.EmailAddress,
+                                PaidLeaveBeginDate = DateTime.Parse(sRow.GetCell(regionCol, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString().Trim()),
+                                PaidLeaveEndDate = DateTime.Parse(sRow.GetCell(regionCol + 1, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString().Trim()),
+                                BeforePaidLeaveRemainingHours = double.Parse(sRow.GetCell(regionCol + 2, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString().Trim()),
+                                CurrentPaidLeaveRemainingHours = double.Parse(sRow.GetCell(regionCol + 3, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString().Trim()),
+                                PaidLeaveRemainingHours = sRow.GetCell(totalCol, MissingCellPolicy.CREATE_NULL_AS_BLANK).NumericCellValue
+                            });
+                        }
+                        catch (Exception)
+                        {
+                            errorName = name;
+                            throw;
+                        }
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                return new HolidayResult()
+                {
+                    hasError = true,
+                    ErrorMsg = "错误定位=>姓名：" + (string.IsNullOrWhiteSpace(errorName) ? "无" : errorName) +
+                    ",错误信息：" + ex.Message,
+                };
+            }
+            return new HolidayResult()
+            {
+                hasError = false,
+                ErrorMsg = "",
+                result = result
+            };
+        }
+
+        /// <summary>
+        /// 读取所有的调休excel信息
+        /// </summary>
+        public TransferResult ReadTransferFile()
+        {
+            var num = this._workBook.NumberOfSheets;
+            List<UserTransferList> result = new List<UserTransferList>();
+            while (num > 0)
+            {
+                var sheet = this._workBook.GetSheetAt(num - 1);
+                if (sheet == null)
+                {
+                    return new TransferResult()
+                    {
+                        hasError = true,
+                        ErrorMsg = $"错误定位：工作表=>{sheet.SheetName},<br />" +
+                        $"错误信息：当前工作表无数据"
+                    };
+                }
+                IRow title = sheet.GetRow(0);
+                if (!title.GetCell(0, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString().Trim().Equals("日期"))
+                {
+                    return new TransferResult()
+                    {
+                        hasError = true,
+                        ErrorMsg = $"错误定位：工作表=>{sheet.SheetName},<br />" +
+                        $"错误信息：当前工作表数据格式不正确，请确保'A1'单元格为数据起始点，其值为日期"
+                    };
+                }
+                //读取所有调休信息
+                int cols = title.LastCellNum;
+                UserTransferList list = new UserTransferList();
+                var allUsers = UserService.GetAllUsers();
+                try
+                {
+                    for (int row = 1; row < sheet.LastRowNum + 1; row++)
+                    {
+                        IRow sRow = sheet.GetRow(row);
+                        string name = sheet.GetRow(row).GetCell(1).ToString();
+                        bool nameExt = name != null && name != ""; //名字单元格不为空
+                                                                   //确保第一个名字单元格存在
+                        if (nameExt)
+                        {
+                            var user = allUsers.Where(r => r.LetterName == name.ToLower().Trim());
+                            if (user.Count() > 0)
+                            {
+                                var userModel = user.FirstOrDefault();
+                                try
+                                {
+                                    //读取所有基本信息详情
+                                    var staffRecord = result.Where(r => r.StaffName == name);
+                                    if (result.Count > 0 && staffRecord.Count() > 0)
+                                    {
+                                        staffRecord.First().UserTransferDetail.Add(
+                                        new TransferDetail()
+                                        {
+                                            ExtraWorkDate = DateTime.Parse(sRow.GetCell(0, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString().Trim()).ToString("yyyy-MM-dd"),
+                                            ExtraWorkPeriod = sRow.GetCell(2, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString().Trim(),
+                                            ExtraWorkTime = double.Parse(sRow.GetCell(3, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString().Trim()),
+                                            TransferPeriod = sRow.GetCell(4, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString().Trim(),
+                                            TransferRemainingTime = double.Parse(sRow.GetCell(5, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString().Trim()),
+                                        });
+                                    }
+                                    else
+                                    {
+                                        var detail = new TransferDetail()
+                                        {
+                                            ExtraWorkDate = DateTime.Parse(sRow.GetCell(0, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString().Trim()).ToString("yyyy-MM-dd"),
+                                            ExtraWorkPeriod = sRow.GetCell(2, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString().Trim(),
+                                            ExtraWorkTime = double.Parse(sRow.GetCell(3, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString().Trim()),
+                                            TransferPeriod = sRow.GetCell(4, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString().Trim(),
+                                            TransferRemainingTime = double.Parse(sRow.GetCell(5, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString().Trim()),
+                                        };
+                                        var userlist = new UserTransferList()
+                                        {
+                                            StaffName = name,
+                                            StaffEmail = userModel.EmailAddress,
+                                        };
+                                        userlist.UserTransferDetail.Add(detail);
+                                        result.Add(userlist);
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    return new TransferResult()
+                                    {
+                                        hasError = true,
+                                        ErrorMsg = $"错误定位：工作表=>{sheet.SheetName}, 姓名=>{name}, <br />" +
+                                $"错误信息：当前文件字段类型有误，无法转换字段: {ex.Message}" +
+                                $"错误追踪：{ex.StackTrace}"
+                                    };
+                                }
+                            }
+                            else
+                            {
+                                return new TransferResult()
+                                {
+                                    hasError = true,
+                                    ErrorMsg = $"错误定位：工作表=>{sheet.SheetName}, 姓名=>{name}, <br />" +
+                                "错误信息：当前文件姓名有误，无法匹配数据库员工字段"
+                                };
+                            }
+                        }
+                        //数据读取结束，返回result
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return new TransferResult()
+                    {
+                        hasError = true,
+                        ErrorMsg = $"错误定位：工作表=>{sheet.SheetName}, <br />" +
+                            $"错误追踪：{ex.StackTrace}"
+                    };
+                }
+                num--;
+            }
+            return new TransferResult()
+            {
+                hasError = false,
+                ErrorMsg = "",
+                result = result
+            };
+        }
+
+        /// <summary>
+        /// 读取worklog的excel信息
+        /// </summary>
+        /// <param name="year">worklog时间所在的年份，具体月日日期由sheet名称读取</param>
+        public WorklogTimeResult ReadWorklogFile(int year)
+        {
+            WorklogTimeResult wtr = new WorklogTimeResult();
+
+            foreach (ISheet sheet in this._workBook)
+            {
+                try
+                {
+                    if (sheet == null || sheet.SheetName.IndexOf(".") == -1)
+                    {
+                        continue;
+                    }
+                    string[] sheetNameArray = sheet.SheetName.Trim().Split(".".ToArray());
+                    int month = 0, day = 0;
+                    if (!int.TryParse(sheetNameArray[0], out month) || !int.TryParse(sheetNameArray[1], out day))
+                    {
+                        continue;
+                    }
+                    DateTime date = new DateTime(year, month, day);
+                    IRow title = sheet.GetRow(0);
+                    if (!title.GetCell(0).StringCellValue.Trim().Equals(_chineseLocationName))
+                    {
+                        wtr.hasError = true;
+                        wtr.ErrorMsg = "sheet表必须以'姓名'开头";
+                        return wtr;
+                    }
+                    else
+                    {
+                        for (int i = 0; i < title.Cells.Count; i++)
+                        {
+                            string item = title.GetCell(i).StringCellValue.Trim();
+                            if (colName.Keys.Contains(item))
+                            {
+                                colName[item] = i;
+                            }
+                        }
+                    }
+                    for (int i = 1; i <= sheet.LastRowNum; i++)
+                    {
+                        IRow row = sheet.GetRow(i);
+                        if (row != null)
+                        {
+                            string staffName = row.GetCell(colName["姓名"], MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString();
+                            if (!string.IsNullOrWhiteSpace(staffName))
+                            {
+                                try
+                                {
+                                    WorklogTime wlt = new WorklogTime();
+                                    wlt.userName = staffName;
+                                    wlt.rank = row.GetCell(colName["职级"], MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString();
+                                    wlt.department = row.GetCell(colName["部门"], MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString();
+                                    wlt.position = row.GetCell(colName["职位"], MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString();
+                                    wlt.project = row.GetCell(colName["项目"], MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString();
+                                    wlt.worklog = double.Parse(row.GetCell(colName["工作时间"], MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString().Trim());
+                                    wlt.logDate = date;
+                                    wlt.updateDate = DateTime.Now;
+                                    wlt.updateUser = this._loginName;
+                                    wtr.result.Add(wlt);
+                                    wtr.logDates.Add(date);
+                                }
+                                catch (Exception ex)
+                                {
+                                    throw new Exception("出错信息行：" + staffName + "," + ex);
+                                }
+                            }
+                        }
+                        else { continue; }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    wtr.hasError = true;
+                    wtr.ErrorMsg = "位置：" + sheet.SheetName + "." + "错误：" + ex.Message;
+                }
+            }
+
+            return wtr;
+        }
+
+        private void BuildWorkbook()
+        {
+            string fileExt = Path.GetExtension(_fileName).ToLower();
+            if (fileExt == ".xls")
+                this._workBook = new HSSFWorkbook(_fileStream);
+            else if (fileExt == ".xlsx")
+                this._workBook = new XSSFWorkbook(_fileStream);
+            else
+                throw new Exception("Excel wrong format:" + fileExt);
+        }
+
+        public class HolidayResult
+        {
+            public bool hasError { get; set; }
+
+            public string ErrorMsg { get; set; }
+
+            public List<UserHoliday> result { get; set; }
+        }
+
+        public class TransferResult
+        {
+            public bool hasError { get; set; }
+
+            public string ErrorMsg { get; set; }
+
+            public List<UserTransferList> result { get; set; }
+        }
+
+        #region worklog Time 数据结构
+        public class WorklogTimeResult
+        {
+            public WorklogTimeResult()
+            {
+                result = new List<WorklogTime>();
+                logDates = new List<DateTime>();
+            }
+
+            public bool hasError { get; set; }
+
+            public string ErrorMsg { get; set; }
+
+            public List<DateTime> logDates { get; set; }
+
+            public List<WorklogTime> result { get; set; }
+        }
+
+        public Dictionary<string, int> colName =
+            new Dictionary<string, int>()
+        {
+            {"姓名", 0},
+            {"职级", 1},
+            {"部门", 2},
+            {"职位", 3},
+            {"项目", 4},
+            {"工作时间", 5},
+        };
+        #endregion
+    }
+}
