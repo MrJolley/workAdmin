@@ -64,6 +64,18 @@
                     </div>
                     <div class="row form-group">
                         <div class="col-sm-4 control-label">
+                            Is HeyiMember
+                        </div>
+                        <div class="col-sm-6">
+                            @Html.DropDownListFor(r => r.IsHeyiMember, new SelectListItem[] {
+                            new SelectListItem(){ Text="Yes",Value="true"},
+                            new SelectListItem(){Text="No",Value="false"}
+                       }, "--请选择--", new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-2"></div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-sm-4 control-label">
                             Level
                         </div>
                         <div class="col-sm-6">

@@ -26,6 +26,7 @@
                     <th>Chinese Name</th>
                     <th>Email Address</th>
                     <th>Is Manager</th>
+                    <th>Is HeyiMember</th>
                     <th>level</th>
                     <th>department</th>
                     <th>project</th>
@@ -47,6 +48,9 @@
                             <td>@Html.DisplayFor(r => user.EmailAddress)</td>
                             <td>
                                 @(user.IsManager ? "Yes" : "")
+                            </td>
+                            <td>
+                                @(user.IsHeyiMember == null ? "" : (bool)user.IsHeyiMember ? "是" : "否")
                             </td>
                             <td>@user.rankLevel</td>
                             <td>@user.department</td>

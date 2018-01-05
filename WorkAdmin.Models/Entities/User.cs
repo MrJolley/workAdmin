@@ -29,6 +29,8 @@ namespace WorkAdmin.Models.Entities
 
         public bool IsManager { get; set; }
 
+        public bool? IsHeyiMember { get; set; }
+
         #region 增加职级，部门，项目，职位
         public string rankLevel { get; set; }
 

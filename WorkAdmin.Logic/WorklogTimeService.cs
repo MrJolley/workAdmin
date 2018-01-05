@@ -45,7 +45,7 @@ namespace WorkAdmin.Logic
         {
             using (MyDbContext db = new MyDbContext())
             {
-                string sql = @"SELECT name FROM [dbo].[HeyiStaff]";
+                string sql = @"SELECT [ChineseName] FROM [dbo].[Users] WHERE IsHeyiMember = 1 AND [ChineseName] IS NOT NULL";
                 return db.Database.SqlQuery<string>(sql).ToList();
             }
         }

@@ -246,6 +246,7 @@ namespace WorkAdmin.Site.Controllers
             user.EnglishName = model.EnglishName;
             user.ChineseName = model.ChineseName;
             user.IsManager = model.IsManager;
+            user.IsHeyiMember = model.IsHeyiMember;
             user.rankLevel = model.rankLevel;
             user.department = model.department;
             user.project = model.project;
