@@ -1,1 +1,12 @@
 Web.config
+/WorkAdmin.Logic/obj
+/WorkAdmin.Logic/bin/Release
+/packages
+/.vs
+/WorkAdmin.Models/bin/Release
+/WorkAdmin.Site/obj
+/WorkAdmin.Site/bin
+/WorkAdmin.Models/obj/Release
+/WorkAdmin.Models/obj/Debug
+/WorkReportBuilder/obj
+/WorkReportBuilder/bin/Release
