@@ -10,3 +10,8 @@ Web.config
 /WorkAdmin.Models/obj/Debug
 /WorkReportBuilder/obj
 /WorkReportBuilder/bin/Release
+/WorkAdmin.Logic/bin/Debug/AutoMapper.dll
+*.xml
+*.dll
+*.config
+*.pdb

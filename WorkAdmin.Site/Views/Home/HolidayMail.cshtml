@@ -136,6 +136,8 @@
     <script type="text/javascript" src="~/Scripts/alertify.js"></script>
 
     <script>
+        $("#menuHoliday").addClass("selected");
+        $("#maildown").addClass("selected");
         var app = angular.module('holidayMail', []);
         app.controller('excelCheckCtrl', ['$http', '$scope', "$filter", function ($http, $scope, $filter) {
             $scope.isDisplay = false;
