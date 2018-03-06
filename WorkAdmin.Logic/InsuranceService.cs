@@ -24,7 +24,7 @@ namespace WorkAdmin.Logic
             MailConfiguration config = new MailConfiguration();
             var client = config.GetMailClient(account, password);
 
-            string subject = year + "社保基数调整";
+            string subject = year + "年度月平均工资";
             var message = config.GetMailMessage(subject, account, content, ccList);
             //配置收件人地址
             var address = config.GetMailAddress(userAddress);
@@ -67,7 +67,7 @@ namespace WorkAdmin.Logic
 
             sb.Append("<table style='border-collapse:collapse;text-align:center;'>").Append("<tr>");
             sb.Append("<td style=\"border: 1px solid black; width: 100px; \">").Append("姓名").Append("</td>");
-            sb.Append("<td style=\"border: 1px solid black; width:180px; \">").Append(year).Append("平均工资").Append("</td>");
+            sb.Append("<td style=\"border: 1px solid black; width:200px; \">").Append(year).Append("年度月平均工资").Append("</td>");
             sb.Append("<tr>");
             foreach (DataRow dr in data.Rows)
             {
