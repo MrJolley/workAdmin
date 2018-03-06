@@ -21,6 +21,7 @@ namespace WorkAdmin.Site.Controllers
     {
         public User CurrentUser = new MyHttpUtilities().CurrentUser;
         public string LoginName = new MyHttpUtilities().LoginName;
+        public string userEmail = new MyHttpUtilities().UserEmail;
         public ActionResult Index()
         {
             //return View();
@@ -463,6 +464,66 @@ namespace WorkAdmin.Site.Controllers
             return View(new UserHoliday());
         }
 
+        public ActionResult WorklogTime()
+        {
+            return View();
+        }
+
+        public JsonResult GetWorklogFileExist()
+        {
+            int year = int.Parse(Request["year"]);
+            int month = int.Parse(Request["month"]);
+            DateTime dt = new DateTime(year, month, 1);
+            return Json(WorklogTimeService.GetWorklogTimesExist(dt));
+        }
+
+        public ActionResult GetWorklogTimesFile()
+        {
+            int year = int.Parse(Request["year"]);
+            int month = int.Parse(Request["month"]);
+            DateTime dt = new DateTime(year, month, 1);
+            using (MemoryStream ms = new MemoryStream())
+            {
+                var rlt = WorklogTimeService.GetWorklogTimesExcelModel(dt);
+                rlt.Write(ms);
+                return File(ms.ToArray(), "application/vnd.ms-excel", string.Format("{0}-{1}-worklog统计表.xlsx", year, month));
+            }
+        }
+
+        public ActionResult ExportWorkReport()
+        {
+            return View();
+        }
+
+        public ActionResult GetWorkReportExist()
+        {
+            int year = int.Parse(Request["year"]);
+            int month = int.Parse(Request["month"]);
+            DateTime dt = new DateTime(year, month, 1);
+            return Json(MailPopService.GetWorkReportExist(dt));
+        }
+
+        public ActionResult GetWorkReportFile()
+        {
+            int year = int.Parse(Request["year"]);
+            int month = int.Parse(Request["month"]);
+            DateTime dt = new DateTime(year, month, 1);
+            using (MemoryStream ms = new MemoryStream())
+            {
+                var rlt = MailPopService.GetWorkReportExcelModel(dt);
+                rlt.Write(ms);
+                return File(ms.ToArray(), "application/vnd.ms-excel",
+                    string.Format("Statistic of Work Report({0}年{1}月).xlsx", year, month));
+            }
+        }
+
+        public ActionResult SocialInsuranceRadix()
+        {
+            ViewBag.Email = userEmail;
+            return View(new InsuranceRadix());
+        }
+
+        #region Event Handler
         /// <summary>
         /// 调休，节假日excel上传服务
         /// </summary>
@@ -567,7 +628,9 @@ namespace WorkAdmin.Site.Controllers
 
                     foreach (UserHoliday ul in luhl)
                     {
-                        if (ul.PaidLeaveRemainingHours == 0)
+                        if (ul.PaidLeaveRemainingHours == 0 ||
+                            ul.PaidLeaveBeginDate > DateTime.Now ||
+                            ul.PaidLeaveEndDate < DateTime.Now)
                         {
                             continue;
                         }
@@ -626,17 +689,42 @@ namespace WorkAdmin.Site.Controllers
                         }
                     }
                     break;
+                case "radix":
+                    InsuranceRadix ir = JsonConvert.DeserializeObject<InsuranceRadix>(Request.Form["staffList"]);
+                    string upContent = Request.Form["upCont"];
+                    string downContent = Request.Form["downCont"];
+                    var radixService = new InsuranceService();
+                    foreach (var item in ir.InsuranceRadixDetails)
+                    {
+                        string htmlData = string.Empty;
+                        try
+                        {
+                            htmlData = radixService.RadixDataConvert2Html(item, ir.Year, upContent, downContent);
+                        }
+                        catch (Exception ex)
+                        {
+                            result.FailureList.Add(item.ChineseName);
+                            result.FailureMsg.Add(ex.Message);
+                            continue;
+                        }
+                        try
+                        {
+                            radixService.MailSending(email, password, item.Email, htmlData, ir.Year, CCAddress);
+                            result.SuccessList.Add(item.ChineseName);
+                        }
+                        catch (Exception ex)
+                        {
+                            result.FailureList.Add(item.ChineseName);
+                            result.FailureMsg.Add(ex.Message);
+                        }
+                    }
+                    break;
                 default:
                     result.FailureList.Add("系统错误");
                     result.FailureMsg.Add("邮件类型错误，请返回重新上传文件");
                     break;
             }
             return Json(result);
-        }
-
-        public ActionResult WorklogTime()
-        {
-            return View();
         }
 
         [HttpPost]
@@ -659,52 +747,62 @@ namespace WorkAdmin.Site.Controllers
             }
         }
 
-        public JsonResult GetWorklogFileExist()
+        [HttpPost]
+        public JsonResult RadixFileHandler()
         {
-            int year = int.Parse(Request["year"]);
-            int month = int.Parse(Request["month"]);
-            DateTime dt = new DateTime(year, month, 1);
-            return Json(WorklogTimeService.GetWorklogTimesExist(dt));
-        }
+            object responseData = new object();
+            string ErrorMsg = "";
 
-        public ActionResult GetWorklogTimesFile()
-        {
-            int year = int.Parse(Request["year"]);
-            int month = int.Parse(Request["month"]);
-            DateTime dt = new DateTime(year, month, 1);
-            using (MemoryStream ms = new MemoryStream())
+            int.TryParse(Request.Form["excelYear"], out int year);
+            if (year <= 0)
             {
-                var rlt = WorklogTimeService.GetWorklogTimesExcelModel(dt);
-                rlt.Write(ms);
-                return File(ms.ToArray(), "application/vnd.ms-excel", string.Format("{0}-{1}-worklog统计表.xlsx", year, month));
+                ErrorMsg = "上传失败：请选择正确的文件日期";
+                return Json(ErrorMsg);
+            }
+            if (Request.Files.Count == 0)
+            {
+                ErrorMsg = "上传失败：请选择上传的文件，文件不能为空";
+                return Json(ErrorMsg);
+            }
+            HttpPostedFileBase file = Request.Files[0];
+            if (file.ContentLength == 0)
+            {
+                ErrorMsg = "上传失败：请选择正确的文件，文件内容不能为空";
+                return Json(ErrorMsg);
+            }
+            string fileExtend = Path.GetExtension(file.FileName);
+            if (!fileExtend.ToLower().StartsWith(".xls"))
+            {
+                ErrorMsg = "上传失败：请选择正确的文件类型，文件类型只能为.xls/.xlsx";
+                return Json(ErrorMsg);
+            }
+            //读取数据
+            try
+            {
+                Stream stream = file.InputStream;
+                FileUploadHelper helper = new FileUploadHelper(stream, file.FileName, LoginName);
+                var result = helper.ReadInsuranceRadixFile(year);
+                if (result.hasError)
+                {
+                    ErrorMsg = result.ErrorMsg;
+                    return Json(ErrorMsg);
+                }
+                else
+                {
+                    //响应读取的数据结构
+                    responseData = new
+                    {
+                        data = result.result
+                    };
+                    return Json(responseData);
+                }
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
+        #endregion
 
-        public ActionResult ExportWorkReport()
-        {
-            return View();
-        }
-
-        public ActionResult GetWorkReportExist()
-        {
-            int year = int.Parse(Request["year"]);
-            int month = int.Parse(Request["month"]);
-            DateTime dt = new DateTime(year, month, 1);
-            return Json(MailPopService.GetWorkReportExist(dt));
-        }
-
-        public ActionResult GetWorkReportFile()
-        {
-            int year = int.Parse(Request["year"]);
-            int month = int.Parse(Request["month"]);
-            DateTime dt = new DateTime(year, month, 1);
-            using (MemoryStream ms = new MemoryStream())
-            {
-                var rlt = MailPopService.GetWorkReportExcelModel(dt);
-                rlt.Write(ms);
-                return File(ms.ToArray(), "application/vnd.ms-excel",
-                    string.Format("Statistic of Work Report({0}年{1}月).xlsx", year, month));
-            }
-        }
     }
 }

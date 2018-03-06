@@ -97,6 +97,7 @@
     <Compile Include="ReturnResultTable.cs" />
     <Compile Include="ViewModels\HolidayDetail.cs" />
     <Compile Include="ViewModels\HolidayTransferMailResult.cs" />
+    <Compile Include="ViewModels\InsuranceRadix.cs" />
     <Compile Include="ViewModels\JiraWorklogMember.cs" />
     <Compile Include="ViewModels\JiraWorkLogDetail.cs" />
     <Compile Include="ViewModels\JiraWorkLogViewModel.cs" />

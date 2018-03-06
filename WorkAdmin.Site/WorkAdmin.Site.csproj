@@ -330,6 +330,7 @@
     <Content Include="Views\Home\HolidayMail.cshtml" />
     <Content Include="Views\Home\WorklogTime.cshtml" />
     <Content Include="Views\Home\ExportWorkReport.cshtml" />
+    <Content Include="Views\Home\SocialInsuranceRadix.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

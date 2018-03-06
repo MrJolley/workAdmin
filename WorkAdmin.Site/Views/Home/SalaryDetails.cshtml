@@ -22,95 +22,95 @@
         @using (Html.BeginForm("SalaryDetails", "Home", FormMethod.Post, new { @class = "form form-horizontal", enctype = "multipart/form-data", id = "uploadForm" }))
         {
             @Html.AntiForgeryToken();
-    <table class="table table-condensed">
-        <tr>
-            @*<th class="col-sm-6" style="margin:10px 3px 15px 3px;">*@
-            <td>
-                <div class="row form-group">
-                    <div class="col-sm-5 control-label">
-                        @Html.LabelFor(r => r.Month)：
-                    </div>
-                    <div class="col-sm-6">
-                        @Html.TextBoxFor(r => r.Month, new { @class = "form-control", id = "txtMonthSelector", name = "mydate" })
-                        @Html.ValidationMessageFor(r => r.Month)
-                    </div>
-                    <div class="col-sm-1"></div>
-                </div>
-            </td>
-            <td>
-                <div class="row form-group">
-                    <div class="col-sm-5 control-label">
-                        @Html.LabelFor(r => r.UploadedFile)：
-                    </div>
-                    <div class="col-sm-6">
-                        @Html.TextBoxFor(r => r.UploadedFile, new { @class = "form-control", type = "file", id = "uploadedFile", name = "myfile" })
-                        @Html.ValidationMessageFor(r => r.UploadedFile)
-                    </div>
-                    <div class="col-sm-1"></div>
-                </div>
-            </td>
-            <td>
-                <div class="row form-group">
-                    <div class="col-sm-5"></div>
-                    <div class="col-sm-6 text-left">
-                        <input type="submit" class="btn btn-default btn-primary" value="Check" name="submitButton" id="uploadSubmit" @*onclick='this.form.action="@Url.Action("SalaryDetails")"' *@ />
-                    </div>
-                    <div class="col-sm-1"></div>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            @*</th>*@
-            @*<th class=" col-sm-6" style="margin:10px 3px 15px 3px;">*@
-            <td>
-                <div class="row form-group">
-                    <div class="col-sm-5 control-label">
-                        @Html.LabelFor(r => r.Address)：
-                    </div>
-                    <div class="col-sm-6">
-                        @Html.TextBoxFor(r => r.Address, new { @class = "form-control", name = "myaddress", id = "address" })
-                        @Html.ValidationMessageFor(r => r.Address)
-                    </div>
-                    <div class="col-sm-1"></div>
-                </div>
-            </td>
-            <td>
-                <div class="row form-group">
-                    <div class="col-sm-5 control-label">
-                        @Html.LabelFor(r => r.Password)：
-                    </div>
-                    <div class="col-sm-6">
-                        @Html.TextBoxFor(r => r.Password, new { @class = "form-control", id = "password", type = "password", name = "mypassword" })
-                        @Html.ValidationMessageFor(r => r.Password)
-                    </div>
-                    <div class="col-sm-1"></div>
-                </div>
-            </td>
-            <td>
-                <div class="row form-group">
-                    <div class="col-sm-5"></div>
-                    <div class="col-sm-2 text-right">
-                        <input type="button" class="btn btn-primary" value="&nbsp;Send&nbsp;" name="submitButton" id="sendSubmit" onclick="transferTableChecked()" />
-                    </div>
-                    @*<div class="col-sm-4">
-                        <input type="checkbox" id="emailPassword"><label for="emailPassword" style="font-weight:lighter">show&nbsp;&nbsp;password</label>
-                    </div>*@
-                    <div class="col-sm-1"></div>
-                </div>
-            </td>
-        </tr>
-        @*</th>*@
-        <tr>
-            <td>
-                <div style="display:none;">
-                    @*<input type="text" id="excelName" value=@Model.TableName />*@
-                    @Html.TextBoxFor(r => r.TableName, new { id = "excelName" })
-                </div>
-            </td>
-            <td></td>
-            <td></td>
-        </tr>
-    </table>
+            <table class="table table-condensed">
+                <tr>
+                    @*<th class="col-sm-6" style="margin:10px 3px 15px 3px;">*@
+                    <td>
+                        <div class="row form-group">
+                            <div class="col-sm-5 control-label">
+                                @Html.LabelFor(r => r.Month)：
+                            </div>
+                            <div class="col-sm-6">
+                                @Html.TextBoxFor(r => r.Month, new { @class = "form-control", id = "txtMonthSelector", name = "mydate" })
+                                @Html.ValidationMessageFor(r => r.Month)
+                            </div>
+                            <div class="col-sm-1"></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="row form-group">
+                            <div class="col-sm-5 control-label">
+                                @Html.LabelFor(r => r.UploadedFile)：
+                            </div>
+                            <div class="col-sm-6">
+                                @Html.TextBoxFor(r => r.UploadedFile, new { @class = "form-control", type = "file", id = "uploadedFile", name = "myfile" })
+                                @Html.ValidationMessageFor(r => r.UploadedFile)
+                            </div>
+                            <div class="col-sm-1"></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="row form-group">
+                            <div class="col-sm-5"></div>
+                            <div class="col-sm-6 text-left">
+                                <input type="submit" class="btn btn-default btn-primary" value="Check" name="submitButton" id="uploadSubmit" @*onclick='this.form.action="@Url.Action("SalaryDetails")"' *@ />
+                            </div>
+                            <div class="col-sm-1"></div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    @*</th>*@
+                    @*<th class=" col-sm-6" style="margin:10px 3px 15px 3px;">*@
+                    <td>
+                        <div class="row form-group">
+                            <div class="col-sm-5 control-label">
+                                @Html.LabelFor(r => r.Address)：
+                            </div>
+                            <div class="col-sm-6">
+                                @Html.TextBoxFor(r => r.Address, new { @class = "form-control", name = "myaddress", id = "address" })
+                                @Html.ValidationMessageFor(r => r.Address)
+                            </div>
+                            <div class="col-sm-1"></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="row form-group">
+                            <div class="col-sm-5 control-label">
+                                @Html.LabelFor(r => r.Password)：
+                            </div>
+                            <div class="col-sm-6">
+                                @Html.TextBoxFor(r => r.Password, new { @class = "form-control", id = "password", type = "password", name = "mypassword" })
+                                @Html.ValidationMessageFor(r => r.Password)
+                            </div>
+                            <div class="col-sm-1"></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="row form-group">
+                            <div class="col-sm-5"></div>
+                            <div class="col-sm-2 text-right">
+                                <input type="button" class="btn btn-primary" value="&nbsp;Send&nbsp;" name="submitButton" id="sendSubmit" onclick="transferTableChecked()" />
+                            </div>
+                            @*<div class="col-sm-4">
+                                    <input type="checkbox" id="emailPassword"><label for="emailPassword" style="font-weight:lighter">show&nbsp;&nbsp;password</label>
+                                </div>*@
+                            <div class="col-sm-1"></div>
+                        </div>
+                    </td>
+                </tr>
+                @*</th>*@
+                <tr>
+                    <td>
+                        <div style="display:none;">
+                            @*<input type="text" id="excelName" value=@Model.TableName />*@
+                            @Html.TextBoxFor(r => r.TableName, new { id = "excelName" })
+                        </div>
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
             <div id="emailStyle">
                 <div>邮件正文说明部分格式：</div>
                 @Html.TextAreaFor(r => r.emailStyle, new { @class="emailStyle", id="styleText", placeHolder="请输入邮件正文说明格式，不包括结尾致谢和签名部分" })
@@ -119,43 +119,43 @@
         <div id="updateTarget">
             @if (ViewBag.showTable == true)
             {
-                <div class="tablebox">
-                    <div class="tablehead">
-                        <table class="head row-clicked" border="1" id="table_head">
-                            <tr>
-                                <td>status</td>
-                                <td><input type="checkbox" id="selectAll" value="select all">select all</td>
-                                @foreach (DataColumn col in Model.SalaryTable.Columns)
+            <div class="tablebox">
+                <div class="tablehead">
+                    <table class="head row-clicked" border="1" id="table_head">
+                        <tr>
+                            <td>status</td>
+                            <td><input type="checkbox" id="selectAll" value="select all">select all</td>
+                            @foreach (DataColumn col in Model.SalaryTable.Columns)
                                 {
-                                    <td>@col.ColumnName</td>
+                                <td>@col.ColumnName</td>
                                 }
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="tablebody">
-                        <table class="body table-hover table-click-effect" border="1" id="table_body">
-                            @for (int i = 0; i < Model.SalaryTable.Rows.Count; i++)
+                        </tr>
+                    </table>
+                </div>
+                <div class="tablebody">
+                    <table class="body table-hover table-click-effect" border="1" id="table_body">
+                        @for (int i = 0; i < Model.SalaryTable.Rows.Count; i++)
                             {
-                                <tr>
-                                    @if (Model.SalaryTable.Rows[i][0] != "")
+                            <tr>
+                                @if (Model.SalaryTable.Rows[i][0].ToString() != "")
                                     {
-                                        <td><div class=@Model.SalaryTable.Rows[i][1]></div></td>
-                                        <td><input type="checkbox" name="selectOption" value=@Model.SalaryTable.Rows[i][1] /></td>
+                                    <td><div class=@Model.SalaryTable.Rows[i][1]></div></td>
+                                    <td><input type="checkbox" name="selectOption" value=@Model.SalaryTable.Rows[i][1] /></td>
                                     }
                                     else
                                     {
-                                        <td></td>
-                                        <td></td>
+                                    <td></td>
+                                    <td></td>
                                     }
-                                    @for (int field = 0; field < Model.SalaryTable.Columns.Count; field++)
+                                @for (int field = 0; field < Model.SalaryTable.Columns.Count; field++)
                                     {
-                                        <td>@(Model.SalaryTable.Rows[i][field])</td>
+                                    <td>@(Model.SalaryTable.Rows[i][field])</td>
                                     }
-                                </tr>
+                            </tr>
                             }
-                        </table>
-                    </div>
+                    </table>
                 </div>
+            </div>
             }
         </div>
     </div>
@@ -222,10 +222,11 @@
             text-align: center;
             font: larger,bolder;
         }
+
         .emailStyle {
-        height:120px;
-        width:1050px;
-        max-width:1200px;
+            height: 120px;
+            width: 1050px;
+            max-width: 1200px;
         }
     </style>
     <script type="text/javascript">

@@ -51,6 +51,7 @@
                             {
                                 <li id="MenuSalaryMails"><a href="#feature-tab" data-tab="tab-SalaryMails">@Html.ActionLink("Salary Mails", "SalaryDetails", "Home")</a></li>
                             }
+                            <li id="menuSocialRadix"><a href="#feature-tab" data-tab="tab-SocialRadix">@Html.ActionLink("Social Radix Mails", "SocialInsuranceRadix", "Home")</a></li>
                         </ul>
                     </li>
                     @if (new MyHttpUtilities().CurrentUser.LoginName == "bzhou" || new MyHttpUtilities().CurrentUser.LoginName == "rhong" || new MyHttpUtilities().CurrentUser.LoginName == "jhuang")

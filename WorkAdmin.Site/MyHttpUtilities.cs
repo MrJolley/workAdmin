@@ -41,5 +41,23 @@ namespace WorkAdmin.Site
                 return _loginName;
             }
         }
+
+        private string _userEmail;
+        public string UserEmail
+        {
+            get
+            {
+                if (_userEmail == null && HttpContext.Current.User.Identity != null)
+                {
+                    string identityName = HttpContext.Current.User.Identity.Name;
+                    if (identityName != null)
+                    {
+                        string loginName = identityName.Substring(identityName.IndexOf(@"\") + 1);
+                        _userEmail = UserService.GetUser(loginName).EmailAddress;
+                    }
+                }
+                return _userEmail;
+            }
+        }
     }
 }

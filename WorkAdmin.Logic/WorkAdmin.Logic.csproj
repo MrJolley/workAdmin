@@ -83,6 +83,7 @@
     <Compile Include="HolidayLogic\FileUploadHelper.cs" />
     <Compile Include="HolidayLogic\HolidayAnnualService.cs" />
     <Compile Include="HolidayLogic\HolidayTransferService.cs" />
+    <Compile Include="InsuranceService.cs" />
     <Compile Include="JiraQueryService.cs" />
     <Compile Include="HolidayLogic\MailConfiguration.cs" />
     <Compile Include="MailPopService.cs" />

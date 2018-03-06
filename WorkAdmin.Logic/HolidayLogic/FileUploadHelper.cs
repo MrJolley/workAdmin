@@ -361,6 +361,96 @@ namespace WorkAdmin.Logic.HolidayLogic
             return wtr;
         }
 
+        public InsuranceRadixResult ReadInsuranceRadixFile(int year)
+        {
+            var sheet = this._workBook.GetSheetAt(0);
+            InsuranceRadix result = new InsuranceRadix();
+            if (sheet == null)
+            {
+                return new InsuranceRadixResult()
+                {
+                    hasError = true,
+                    ErrorMsg = "当前文件无工作表数据"
+                };
+            }
+            //定位标题行
+            var num = sheet.LastRowNum;
+            int titleNum = -1;
+            for (int i = 0; i < num + 1; i++)
+            {
+                IRow row = sheet.GetRow(i);
+                if (row != null)
+                {
+                    ICell cell = sheet.GetRow(i).GetCell(0, MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                    if (cell != null && cell.ToString().Trim().Equals("序号"))
+                    {
+                        titleNum = i;
+                        break;
+                    }
+                }
+            }
+            if (titleNum == -1)
+            {
+                return new InsuranceRadixResult()
+                {
+                    hasError = true,
+                    ErrorMsg = "数据格式错误：当前文件无起始数据行，标题行第一列必须包含‘序号’两个字"
+                };
+            }
+            //读取数据
+            var users = UserService.GetAllUsers().ToList();
+            result.Year = year.ToString();
+            string errorName = string.Empty;
+            try
+            {
+                for (int j = titleNum + 1; j < sheet.LastRowNum + 1; j++)
+                {
+                    IRow data = sheet.GetRow(j);
+                    string flag = data.GetCell(0, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString();
+                    if (flag == null || flag.Equals(string.Empty))
+                    {
+                        break;
+                    }
+                    int.TryParse(flag, out int cols);
+                    if (cols == 0)
+                    {
+                        continue;
+                    }
+                    string name = data.GetCell(1, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString();
+                    try
+                    {
+                        var user = users.Where(r => r.ChineseName == name).First();
+                        result.InsuranceRadixDetails.Add(new InsuranceRadix.UserInfo()
+                        {
+                            ChineseName = name,
+                            AunualIncome = double.Parse(data.GetCell(2, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString()),
+                            Email = user.EmailAddress
+                        });
+                    }
+                    catch (Exception)
+                    {
+                        errorName = name;
+                        throw;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return new InsuranceRadixResult()
+                {
+                    hasError = true,
+                    ErrorMsg = "错误定位=>姓名：" + (string.IsNullOrWhiteSpace(errorName) ? "无" : errorName) +
+                    ",错误信息：" + ex.Message,
+                };
+            }
+            return new InsuranceRadixResult()
+            {
+                hasError = false,
+                ErrorMsg = "",
+                result = result
+            };
+        }
+
         private void BuildWorkbook()
         {
             string fileExt = Path.GetExtension(_fileName).ToLower();
@@ -388,6 +478,16 @@ namespace WorkAdmin.Logic.HolidayLogic
             public string ErrorMsg { get; set; }
 
             public List<UserTransferList> result { get; set; }
+        }
+
+        public class InsuranceRadixResult
+        {
+            public bool hasError { get; set; }
+
+            public string ErrorMsg { get; set; }
+
+            public InsuranceRadix result { get; set; }
+                = new InsuranceRadix();
         }
 
         #region worklog Time 数据结构
