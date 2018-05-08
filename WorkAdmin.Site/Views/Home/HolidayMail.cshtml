@@ -47,6 +47,7 @@
                         <td rowspan="2" style="padding-top:26px;">上一区间未休计入本区间(h)</td>
                         <td rowspan="2" style="padding-top:26px;">本区间应休年假(h)</td>
                         <td rowspan="2" style="padding-top:26px;">剩余年假(h)</td>
+                        <td rowspan="2" style="padding-top:26px;">当前可使用年假(h)</td>
                     </tr>
                     <tr>
                         <td>起始日期</td>
@@ -62,6 +63,7 @@
                         <td ng-bind="item.BeforePaidLeaveRemainingHours"></td>
                         <td ng-bind="item.CurrentPaidLeaveRemainingHours"></td>
                         <td ng-bind="item.PaidLeaveRemainingHours"></td>
+                        <td ng-bind="item.CurrentAvailableRemainingHours"></td>
                     </tr>
                 </table>
             </div>

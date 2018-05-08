@@ -16,9 +16,10 @@ namespace WorkAdmin.Logic
         const string newLine = "<br />";
         //配置年假字段
         private string _holidaySubject = "Paid Leave Reminding";
-        private string _holidayContentComment = "以下为你剩余年假信息，请查收。";
-        private string _holidayTagComment = $"注：年假请在截止日前使用完毕。年假使用方式为优先使用<span style=\"background-color:yellow\">本区间内应休年假</span>，" +
-            $"使用完毕后才可使用<span style=\"background-color:yellow\">上一区间内未休计入本区间</span>。";
+        private string _holidayContentComment = "以下为你当前剩余年假信息，请查收。";
+        private string _holidayTagComment = $"年假使用规则说明：{newLine}1.	年假请在截止日前使用完毕。{newLine}2.	上一区间未使用年假分两部分分别计入本区间上下半年，本区间年假等分12个月分别计入相应月份，原则上员工不可以提前使用当前月份之后的年假，特殊情况下经主管批准可以提前使用一个季度的年假。";
+        //private string _holidayTagComment = $"注：年假请在截止日前使用完毕。年假使用方式为优先使用<span style=\"background-color:yellow\">本区间内应休年假</span>，" +
+            //$"使用完毕后才可使用<span style=\"background-color:yellow\">上一区间内未休计入本区间</span>。";
         //配置调休字段
         private string _transferSubject = "调休剩余时间提醒";
         private string _transferContentComment = "您还有剩余调休时间未使用，" +
@@ -78,7 +79,8 @@ namespace WorkAdmin.Logic
                         end = holiday.PaidLeaveEndDate.ToString("yyyy-MM-dd"),
                         before = holiday.BeforePaidLeaveRemainingHours,
                         current = holiday.CurrentPaidLeaveRemainingHours,
-                        total = holiday.PaidLeaveRemainingHours
+                        total = holiday.PaidLeaveRemainingHours,
+                        available = holiday.CurrentAvailableRemainingHours
                     }
                 }));
             string data = HolidayTableConvertHtml(detail);
@@ -126,7 +128,8 @@ namespace WorkAdmin.Logic
             sb.Append("<td colspan=2 style=\"border: 1px solid black; \">").Append("年假区间").Append("</td>");
             sb.Append("<td rowspan=2 style=\"border: 1px solid black; width: 80px; \">").Append("上一区间未休计入本区间(h)").Append("</td>");
             sb.Append("<td rowspan=2 style=\"border: 1px solid black; width: 80px; \">").Append("本区间应休年假(h)").Append("</td>");
-            sb.Append("<td rowspan=2 style=\"border: 1px solid black; width: 80px; \">").Append("剩余年假(h)").Append("</td>").Append("</tr>");
+            sb.Append("<td rowspan=2 style=\"border: 1px solid black; width: 80px; \">").Append("剩余年假(h)").Append("</td>");
+            sb.Append("<td rowspan=2 style=\"border: 1px solid black; width: 80px; \">").Append("当前可使用年假(h)").Append("</td>").Append("</tr>");
             sb.Append("<tr>");
             sb.Append("<td style=\"border: 1px solid black; width: 120px; \">").Append("起始日期").Append("</td>");
             sb.Append("<td style=\"border: 1px solid black; width: 120px; \">").Append("截止日期").Append("</td>").Append("</tr>");

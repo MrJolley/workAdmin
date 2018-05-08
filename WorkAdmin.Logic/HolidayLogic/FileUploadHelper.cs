@@ -56,11 +56,11 @@ namespace WorkAdmin.Logic.HolidayLogic
                 return new HolidayResult()
                 {
                     hasError = true,
-                    ErrorMsg = "当前文件数据格式不正确，请确保'A1'单元格为数据起始点，其值为'序号'"
+                    ErrorMsg = "当前文件数据格式不正确，请确保'A2'单元格为数据起始点，其值为'序号'"
                 };
             }
             //读取特定的列数据，包括姓名，年假区间，上期/本期剩余年假时间，总共剩余年假
-            int nameCol = 0, regionCol = 0, totalCol = 0;
+            int nameCol = 0, regionCol = 0, usedCol = 0;
             foreach (var item in title.Cells)
             {
                 string val = item.ToString().Trim();
@@ -72,12 +72,12 @@ namespace WorkAdmin.Logic.HolidayLogic
                 {
                     regionCol = item.ColumnIndex;
                 }
-                else if (val.StartsWith("剩余年假"))
+                else if (val.StartsWith("已使用年假"))
                 {
-                    totalCol = item.ColumnIndex;
+                    usedCol = item.ColumnIndex;
                 }
             }
-            if (nameCol == 0 || regionCol == 0 || totalCol == 0)
+            if (nameCol == 0 || regionCol == 0 || usedCol == 0)
             {
                 return new HolidayResult()
                 {
@@ -102,7 +102,7 @@ namespace WorkAdmin.Logic.HolidayLogic
                         string name = sRow.GetCell(nameCol).ToString().Trim();
                         if (string.IsNullOrWhiteSpace(name))
                         {
-                            break; ;
+                            break;
                         }
                         if (!users.Any(r => r.ChineseName == name))
                         {
@@ -124,7 +124,7 @@ namespace WorkAdmin.Logic.HolidayLogic
                                 PaidLeaveEndDate = DateTime.Parse(sRow.GetCell(regionCol + 1, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString().Trim()),
                                 BeforePaidLeaveRemainingHours = double.Parse(sRow.GetCell(regionCol + 2, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString().Trim()),
                                 CurrentPaidLeaveRemainingHours = double.Parse(sRow.GetCell(regionCol + 3, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString().Trim()),
-                                PaidLeaveRemainingHours = sRow.GetCell(totalCol, MissingCellPolicy.CREATE_NULL_AS_BLANK).NumericCellValue
+                                CurrentUsedPaidLeaveHours = sRow.GetCell(usedCol, MissingCellPolicy.CREATE_NULL_AS_BLANK).NumericCellValue
                             });
                         }
                         catch (Exception)
