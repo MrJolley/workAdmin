@@ -521,7 +521,7 @@ namespace WorkAdmin.Site.Controllers
         {
             ViewBag.Email = userEmail;
             return View(new InsuranceRadix());
-        }
+        } 
 
         #region Event Handler
         /// <summary>
