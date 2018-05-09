@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,20 +11,17 @@ namespace WorkAdmin.Models.ViewModels
     {
         public HolidayTransferMailResult()
         {
-            SuccessList = new List<string>();
-            FailureList = new List<string>();
-            FailureMsg = new List<string>();
+            SuccessList = new ConcurrentBag<string>();
+            FailureList = new ConcurrentBag<string>();
+            FailureMsg = new ConcurrentBag<string>();
         }
 
-        public List<string> SuccessList
-        {
-            get;
-            set;
-        }
+        
+        public ConcurrentBag<string> SuccessList { get; set; }
 
-        public List<string> FailureList { get; set; }
+        public ConcurrentBag<string> FailureList { get; set; }
 
-        public List<string> FailureMsg { get; set; }
+        public ConcurrentBag<string> FailureMsg { get; set; }
 
         public int SuccessCount
         {

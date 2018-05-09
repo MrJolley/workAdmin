@@ -13,6 +13,7 @@ using System.Web.Routing;
 using Newtonsoft.Json;
 using WorkAdmin.Logic.HolidayLogic;
 using NPOI.HSSF.UserModel;
+using System.Threading.Tasks;
 
 namespace WorkAdmin.Site.Controllers
 {
@@ -521,7 +522,7 @@ namespace WorkAdmin.Site.Controllers
         {
             ViewBag.Email = userEmail;
             return View(new InsuranceRadix());
-        } 
+        }
 
         #region Event Handler
         /// <summary>
@@ -624,38 +625,70 @@ namespace WorkAdmin.Site.Controllers
             switch (mailType)
             {
                 case "annual":
-                    List<UserHoliday> luhl = JsonConvert.DeserializeObject<List<UserHoliday>>(Request.Form["staffList"]);
+                    List<UserHoliday> holidayList = JsonConvert.DeserializeObject<List<UserHoliday>>(Request.Form["staffList"]);
 
-                    foreach (UserHoliday ul in luhl)
+                    Parallel.ForEach(holidayList, (item, state) =>
                     {
-                        if (ul.PaidLeaveRemainingHours == 0 ||
-                            ul.PaidLeaveBeginDate > DateTime.Now ||
-                            ul.PaidLeaveEndDate < DateTime.Now)
+                        if (item.PaidLeaveRemainingHours == 0 ||
+                            item.PaidLeaveBeginDate > DateTime.Now ||
+                            item.PaidLeaveEndDate < DateTime.Now)
                         {
-                            continue;
+                            //state.Stop();
+                            return;
                         }
                         string htmlData = string.Empty;
                         try
                         {
-                            htmlData = service.HolidayDataConvert2Html(ul);
+                            htmlData = service.HolidayDataConvert2Html(item);
                         }
                         catch (Exception ex)
                         {
-                            result.FailureList.Add(ul.StaffName);
+                            result.FailureList.Add(item.StaffName);
                             result.FailureMsg.Add(ex.Message);
-                            continue;
+                            return;
                         }
                         try
                         {
-                            service.MailSending(email, password, ul.StaffEmail, htmlData, "annual", CCAddress);
-                            result.SuccessList.Add(ul.StaffName);
+                            service.MailSending(email, password, item.StaffEmail, htmlData, "annual", CCAddress);
+                            result.SuccessList.Add(item.StaffName);
                         }
                         catch (Exception ex)
                         {
-                            result.FailureList.Add(ul.StaffName);
+                            result.FailureList.Add(item.StaffName);
                             result.FailureMsg.Add(ex.Message);
                         }
-                    }
+                    });
+
+                    //foreach (UserHoliday ul in holidayList)
+                    //{
+                    //    if (ul.PaidLeaveRemainingHours == 0 ||
+                    //        ul.PaidLeaveBeginDate > DateTime.Now ||
+                    //        ul.PaidLeaveEndDate < DateTime.Now)
+                    //    {
+                    //        continue;
+                    //    }
+                    //    string htmlData = string.Empty;
+                    //    try
+                    //    {
+                    //        htmlData = service.HolidayDataConvert2Html(ul);
+                    //    }
+                    //    catch (Exception ex)
+                    //    {
+                    //        result.FailureList.Add(ul.StaffName);
+                    //        result.FailureMsg.Add(ex.Message);
+                    //        continue;
+                    //    }
+                    //    try
+                    //    {
+                    //        service.MailSending(email, password, ul.StaffEmail, htmlData, "annual", CCAddress);
+                    //        result.SuccessList.Add(ul.StaffName);
+                    //    }
+                    //    catch (Exception ex)
+                    //    {
+                    //        result.FailureList.Add(ul.StaffName);
+                    //        result.FailureMsg.Add(ex.Message);
+                    //    }
+                    //}
                     break;
                 case "transfer":
                     List<UserTransferList> lutl = JsonConvert.DeserializeObject<List<UserTransferList>>(Request.Form["staffList"]);

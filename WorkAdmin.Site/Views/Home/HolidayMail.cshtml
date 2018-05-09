@@ -279,7 +279,7 @@
                         }
                         if (data.FailureCount > 0) {
                             show += '发送失败' + data.FailureCount + '人： ' + data.FailureList.join(',') + '<br />';
-                            show += '失败详情： ' + data.FailureMsg.join(',') + '<br />';
+                            show += '失败详情： ' + data.FailureMsg.join('&&') + '<br />';
                         }
                         if (show == '') {
                             alertify.alert('暂无可发送人员记录');
