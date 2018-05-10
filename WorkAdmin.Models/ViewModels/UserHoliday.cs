@@ -66,7 +66,7 @@ namespace WorkAdmin.Models.ViewModels
         {
             get
             {
-                double availableMonth = (curDate.Year - _paidLeaveBeginDate.Year) * 12 + (curDate.Month - _paidLeaveBeginDate.Month) + 1 + 3; // 3 means a quarter holiday
+                double availableMonth = (curDate.Year - _paidLeaveBeginDate.Year) * 12 + (curDate.Month - _paidLeaveBeginDate.Month) + 1;
                 double num = curDate < _paidLeaveBeginDate ? 0 :
                     (curDate > _paidLeaveEndDate ? 12 :
                     (availableMonth > 12 ? 12 : availableMonth));
