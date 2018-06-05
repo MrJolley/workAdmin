@@ -43,11 +43,11 @@
                     <li class="dropdown" id="maildown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Mail System<span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
-                            @if (new MyHttpUtilities().CurrentUser.LoginName == "bzhou" || new MyHttpUtilities().CurrentUser.LoginName == "jyhuang")
+                            @if (new MyHttpUtilities().CurrentUser.IsManager)
                             {
                                 <li id="menuHoliday"><a href="#feature-tab" data-tab="tab-holiday">@Html.ActionLink("Holiday Mail", "HolidayMail", "Home")</a></li>
                             }
-                            @if (new MyHttpUtilities().CurrentUser.LoginName == "bzhou" || new MyHttpUtilities().CurrentUser.LoginName == "hpan" || new MyHttpUtilities().CurrentUser.FullName == "Meng Li")
+                            @if (new MyHttpUtilities().CurrentUser.IsManager || new MyHttpUtilities().CurrentUser.LoginName == "hpan")
                             {
                                 <li id="MenuSalaryMails"><a href="#feature-tab" data-tab="tab-SalaryMails">@Html.ActionLink("Salary Mails", "SalaryDetails", "Home")</a></li>
                             }
