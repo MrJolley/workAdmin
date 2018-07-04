@@ -191,6 +191,10 @@ namespace WorkAdmin.Logic.HolidayLogic
                     for (int row = 1; row < sheet.LastRowNum + 1; row++)
                     {
                         IRow sRow = sheet.GetRow(row);
+                        if (sRow == null || sRow.Cells.Count < 2)
+                        {
+                            continue;
+                        }
                         string name = sheet.GetRow(row).GetCell(1).ToString();
                         bool nameExt = name != null && name != ""; //名字单元格不为空
                                                                    //确保第一个名字单元格存在
