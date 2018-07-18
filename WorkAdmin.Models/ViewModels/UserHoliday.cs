@@ -67,10 +67,12 @@ namespace WorkAdmin.Models.ViewModels
             get
             {
                 double availableMonth = (curDate.Year - _paidLeaveBeginDate.Year) * 12 + (curDate.Month - _paidLeaveBeginDate.Month) + 1;
+                int sMonth = _currentPaidLeaveRemainingHours == 24 ? 6 : 12; // 新人法定休假为24小时，且半年有效期
                 double num = curDate < _paidLeaveBeginDate ? 0 :
-                    (curDate > _paidLeaveEndDate ? 12 :
-                    (availableMonth > 12 ? 12 : availableMonth));
-                var legalRemaining = Math.Round((num > 6 ? _beforePaidLeaveRemainingHours : _beforePaidLeaveRemainingHours / 2) + _currentPaidLeaveRemainingHours / 12 * num, 2);
+                    (curDate > _paidLeaveEndDate ? sMonth :
+                    (availableMonth > sMonth ? sMonth : availableMonth));
+                var legalRemaining = Math.Round((num > 6 ? _beforePaidLeaveRemainingHours : _beforePaidLeaveRemainingHours / 2) + 
+                    _currentPaidLeaveRemainingHours / sMonth * num, 2);
                 return legalRemaining > _currentUsedPaidLeaveHours ? (legalRemaining - _currentUsedPaidLeaveHours) : 0;
             }
         }
