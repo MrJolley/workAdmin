@@ -501,7 +501,7 @@ namespace WorkAdmin.Site.Controllers
             int year = int.Parse(Request["year"]);
             int month = int.Parse(Request["month"]);
             DateTime dt = new DateTime(year, month, 1);
-            return Json(MailPopService.GetWorkReportExist(dt));
+            return Json(DoMailService.GetWorkReportExist(dt));
         }
 
         public ActionResult GetWorkReportFile()
@@ -511,7 +511,7 @@ namespace WorkAdmin.Site.Controllers
             DateTime dt = new DateTime(year, month, 1);
             using (MemoryStream ms = new MemoryStream())
             {
-                var rlt = MailPopService.GetWorkReportExcelModel(dt);
+                var rlt = DoMailService.GetWorkReportExcelModel(dt);
                 rlt.Write(ms);
                 return File(ms.ToArray(), "application/vnd.ms-excel",
                     string.Format("Statistic of Work Report({0}年{1}月).xlsx", year, month));

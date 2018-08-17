@@ -3,48 +3,56 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using OpenPop.Pop3;
 using OpenPop.Mime;
 using System.Data.SqlClient;
 using NPOI.XSSF.UserModel;
 using NPOI.SS.UserModel;
 using WorkAdmin.Models.Entities;
+using System.Net.Mail;
+using System.Configuration;
+using System.Net;
+using System.Threading;
 
 namespace WorkAdmin.Logic
 {
-    public class MailPopService
+    public class DoMailService
     {
-        public MailPopService(string ac, string psd, DateTime curDate)
+        /// <summary>
+        /// 获取所有符合规则的daily report邮件
+        /// </summary>
+        /// <param name="monthDate">月份参数(201708)</param>
+        /// <returns></returns>
+        public List<DailyReport> getAvailableMonthMail(string monthDate)
         {
-            this.account = ac;
-            this.password = psd;
-            this.curDate = curDate;
-        }
-
-        public List<DailyReport> GetCurDateMail()
-        {
-            using (Pop3Client client = new Pop3Client())
+            //MailPopService mps = new MailPopService("workreport@sail-fs.com", "Report1234", monthDate);
+            Pop3Client client = new Pop3Client();
+            if (client.Connected)
             {
-                if (client.Connected)
-                {
-                    client.Disconnect();
-                }
-                //连接263服务器
-                client.Connect(host, 110, false);
-                client.Authenticate(account, password);
-                //读取当天邮件信息
-                int count = client.GetMessageCount();
-                string curShortDate = curDate.ToString("yyyyMMdd");
-                List<MailProperty> lmp = new List<MailProperty>();
+                client.Disconnect();
+            }
+            //连接263服务器
+            client.Connect("pop3.263.net", 110, false);
+            client.Authenticate("workreport@sail-fs.com", "Report1234");
+            //读取月份所有邮件信息
+            //var list = client.GetMessageInfos();
+            int count = client.GetMessageCount();
+            int index = 1;
+            List<MailProperty> lmp = new List<MailProperty>();
 
-                for (int i = 1; i < count + 1; i++)
+            for (int i = index; i < count + 1; i++)
+            {
+                if (i % 40 == 0)
+                {
+                    Thread.Sleep(1000);
+                }
+                try
                 {
                     Message message = client.GetMessage(i);
                     DateTime sendDate = DateTime.MinValue;
                     if (DateTime.TryParse(message.Headers.Date.Replace("(CST)", ""), out sendDate))
                     {
-                        if (sendDate.ToString("yyyyMMdd").Equals(curShortDate))
+                        if (sendDate.ToString("yyyyMMdd").StartsWith(monthDate))
                         {
                             MailProperty mp = new MailProperty();
                             mp.subject = message.Headers.Subject;
@@ -54,90 +62,91 @@ namespace WorkAdmin.Logic
                         }
                     }
                 }
-                //读取daily report邮件
-                List<DailyReport> allReports = new List<DailyReport>();
-                foreach (var pro in lmp)
+                catch (Exception)
                 {
-                    DailyReport report = new DailyReport();
-                    if (GetMorningPlanRule(pro.sendDate, pro.subject))
-                    {
-                        report.type = "morning";
-                        string[] rlt = morningReg.Match(pro.subject).Groups[0].Value.Split('_');
-                        if (rlt.Length != 3)
-                        {
-                            throw new Exception("邮件标题不符合{XX_XXX_XX}的规则");
-                        }
-                        report.chineseName = rlt[1];
-                        report.sendDate = pro.sendDate;
-                        report.signIn = true;
-                        allReports.Add(report);
-                        continue;
-                    }
-                    if (GetNoonUpdateRule(pro.sendDate, pro.subject))
-                    {
-                        report.type = "noon";
-                        string[] rlt = noonReg.Match(pro.subject).Groups[0].Value.Split('_');
-                        if (rlt.Length != 3)
-                        {
-                            throw new Exception("邮件标题不符合{XX_XXX_XX}的规则");
-                        }
-                        report.chineseName = rlt[1];
-                        report.sendDate = pro.sendDate;
-                        report.signIn = true;
-                        allReports.Add(report);
-                        continue;
-                    }
-                    if (GetDailySummaryRule(pro.sendDate, pro.subject))
-                    {
-                        report.type = "summary";
-                        Match ss = summaryReg.Match(pro.subject);
-                        string[] rlt = summaryReg.Match(pro.subject).Groups[0].Value.Split('_');
-                        if (rlt.Length != 3)
-                        {
-                            throw new Exception("邮件标题不符合{XX_XXX_XX}的规则");
-                        }
-                        report.chineseName = rlt[1];
-                        report.sendDate = pro.sendDate;
-                        report.signIn = true;
-                        allReports.Add(report);
-                        continue;
-                    }
+                    index = i;
+                    continue;
+                    //throw;
                 }
-                return allReports;
+
             }
+
+
+            //读取符合规则的daily report邮件
+            List<DailyReport> allReports = new List<DailyReport>();
+            foreach (var pro in lmp)
+            {
+                DailyReport report = new DailyReport();
+                if (GetMorningPlanRule(pro.sendDate, pro.subject))
+                {
+                    report.type = "morning";
+                    string[] rlt = morningReg.Match(pro.subject).Groups[0].Value.Split('_');
+                    if (rlt.Length != 3)
+                    {
+                        continue;
+                        throw new Exception("邮件标题不符合{XX_XXX_XX}的规则");
+                    }
+                    report.chineseName = rlt[1];
+                    report.sendDate = pro.sendDate;
+                    report.signIn = true;
+                    allReports.Add(report);
+                    continue;
+                }
+                if (GetNoonUpdateRule(pro.sendDate, pro.subject))
+                {
+                    report.type = "noon";
+                    string[] rlt = noonReg.Match(pro.subject).Groups[0].Value.Split('_');
+                    if (rlt.Length != 3)
+                    {
+                        continue;
+                        throw new Exception("邮件标题不符合{XX_XXX_XX}的规则");
+                    }
+                    report.chineseName = rlt[1];
+                    report.sendDate = pro.sendDate;
+                    report.signIn = true;
+                    allReports.Add(report);
+                    continue;
+                }
+                if (GetDailySummaryRule(pro.sendDate, pro.subject))
+                {
+                    report.type = "summary";
+                    Match ss = summaryReg.Match(pro.subject);
+                    string[] rlt = summaryReg.Match(pro.subject).Groups[0].Value.Split('_');
+                    if (rlt.Length != 3)
+                    {
+                        continue;
+                        throw new Exception("邮件标题不符合{XX_XXX_XX}的规则");
+                    }
+                    report.chineseName = rlt[1];
+                    report.sendDate = pro.sendDate;
+                    report.signIn = true;
+                    allReports.Add(report);
+                    continue;
+                }
+            }
+            return allReports;
+        }
+
+        public void exceptionHandler(Exception ex, DateTime reportDate)
+        {
+            SmtpClient sc = new SmtpClient();
+            MailMessage mms = new MailMessage();
+            var mailer = (ConfigurationManager.GetSection("ExceptionNotice") as MailSettings.MailConfigSection).ExceptionMail;
+            mms.To.Add(new MailAddress(mailer.To));
+            mms.From = new MailAddress(mailer.FromAddress);
+            mms.Subject = mailer.Subject;
+            mms.IsBodyHtml = true;
+            mms.Body = string.Format(@"<p>抓取邮件日期： {0}</p>
+                                               <p>异常信息： {1}</p>
+                                               <p>堆栈跟踪： {2}</p>", reportDate, ex.Message, ex.StackTrace);
+            sc.UseDefaultCredentials = false;
+            sc.Credentials = new NetworkCredential(mailer.Account, mailer.Password);
+            sc.Host = mailer.Host;
+            sc.Send(mms);
         }
 
         #region Properties && Enums
-        public string account { get; set; }
-
-        public string password { get; set; }
-
-        private string host
-        {
-            get { return "pop3.263.net"; }
-        }
-
         public DateTime curDate { get; set; }
-
-        public class MailProperty
-        {
-            public string subject { get; set; }
-
-            public string sender { get; set; }
-
-            public DateTime sendDate { get; set; }
-        }
-
-        public class DailyReport
-        {
-            public string type { get; set; }
-
-            public string chineseName { get; set; }
-
-            public DateTime sendDate { get; set; }
-
-            public bool signIn { get; set; }
-        }
 
         /// <summary>
         /// 邮件发送时间类型，包括早上，中午，晚上三种类型
@@ -158,7 +167,7 @@ namespace WorkAdmin.Logic
         /// <returns></returns>
         public bool GetMorningPlanRule(DateTime sendingDate, string subject)
         {
-            DateTime morningDate = new DateTime(curDate.Year, curDate.Month, curDate.Day, 9, 15, 0);
+            DateTime morningDate = new DateTime(sendingDate.Year, sendingDate.Month, sendingDate.Day, 9, 15, 0);
             return sendingDate <= morningDate && morningReg.IsMatch(subject);
         }
 
@@ -169,7 +178,7 @@ namespace WorkAdmin.Logic
         /// <returns></returns>
         public bool GetNoonUpdateRule(DateTime sendingDate, string subject)
         {
-            DateTime noonDate = new DateTime(curDate.Year, curDate.Month, curDate.Day, 12, 0, 0);
+            DateTime noonDate = new DateTime(sendingDate.Year, sendingDate.Month, sendingDate.Day, 12, 0, 0);
             return sendingDate <= noonDate.AddHours(1) && sendingDate >= noonDate
                 && noonReg.IsMatch(subject);
         }
@@ -181,7 +190,7 @@ namespace WorkAdmin.Logic
         /// <returns></returns>
         public bool GetDailySummaryRule(DateTime sendingDate, string subject)
         {
-            DateTime eveningDate = new DateTime(curDate.Year, curDate.Month, curDate.Day, 18, 0, 0);
+            DateTime eveningDate = new DateTime(sendingDate.Year, sendingDate.Month, sendingDate.Day, 18, 0, 0);
             return sendingDate >= eveningDate && summaryReg.IsMatch(subject);
         }
 
@@ -235,9 +244,9 @@ namespace WorkAdmin.Logic
             //表格时间段
             var timeRow = sheet.CreateRow(rowNum);
             for (int i = 0; i < reportDate.Count; i++)
-			{
-                SetCellValueWithStyle(timeRow.CreateCell(i*3 + 4), string.Format("{0}.{1}", month, reportDate[i]), styles.textStyle);
-			}
+            {
+                SetCellValueWithStyle(timeRow.CreateCell(i * 3 + 4), string.Format("{0}.{1}", month, reportDate[i]), styles.textStyle);
+            }
             rowNum++;
             var titleRow = sheet.CreateRow(rowNum);
             SetCellValueWithStyle(titleRow.CreateCell(0), "中文名", styles.textStyle);
@@ -285,22 +294,22 @@ namespace WorkAdmin.Logic
 
             //for (int i = 0; i < count; i++)
             //{
-                //var row = sheet.CreateRow(rowNum);
-                //string userName = reportUsers[i];
-                //var user = allUsers.Where(r => r.LetterName == userName.ToLower()).FirstOrDefault();
-                //var report = records.Where(r => r.userName == userName).ToList();
-                //SetCellValueWithStyle(row.CreateCell(0), user.ChineseName, styles.textStyle);
-                //SetCellValueWithStyle(row.CreateCell(1), userName, styles.textStyle);
-                //SetCellValueWithStyle(row.CreateCell(2), user.rankLevel, styles.textStyle);
-                //(row.CreateCell(3), report.Where(r=>!r.signIn).Count(), styles.textStyle);
-                //for (int j = 0; j < reportDate.Count; j++)
-                //{
-                //    int day = reportDate[j];
-                //    SetCellValueWithStyle(row.CreateCell(j * 3 + 4), report.Any(r => r.recordDate.Day == day && r.type.Equals("morning") && !r.signIn) ? "×" : "", styles.textStyle);
-                //    SetCellValueWithStyle(row.CreateCell(j * 3 + 5), report.Any(r => r.recordDate.Day == day && r.type.Equals("noon") && !r.signIn) ? "×" : "", styles.textStyle);
-                //    SetCellValueWithStyle(row.CreateCell(j * 3 + 6), report.Any(r => r.recordDate.Day == day && r.type.Equals("summary") && !r.signIn) ? "×" : "", styles.textStyle);
-                //}
-                //rowNum++;
+            //var row = sheet.CreateRow(rowNum);
+            //string userName = reportUsers[i];
+            //var user = allUsers.Where(r => r.LetterName == userName.ToLower()).FirstOrDefault();
+            //var report = records.Where(r => r.userName == userName).ToList();
+            //SetCellValueWithStyle(row.CreateCell(0), user.ChineseName, styles.textStyle);
+            //SetCellValueWithStyle(row.CreateCell(1), userName, styles.textStyle);
+            //SetCellValueWithStyle(row.CreateCell(2), user.rankLevel, styles.textStyle);
+            //(row.CreateCell(3), report.Where(r=>!r.signIn).Count(), styles.textStyle);
+            //for (int j = 0; j < reportDate.Count; j++)
+            //{
+            //    int day = reportDate[j];
+            //    SetCellValueWithStyle(row.CreateCell(j * 3 + 4), report.Any(r => r.recordDate.Day == day && r.type.Equals("morning") && !r.signIn) ? "×" : "", styles.textStyle);
+            //    SetCellValueWithStyle(row.CreateCell(j * 3 + 5), report.Any(r => r.recordDate.Day == day && r.type.Equals("noon") && !r.signIn) ? "×" : "", styles.textStyle);
+            //    SetCellValueWithStyle(row.CreateCell(j * 3 + 6), report.Any(r => r.recordDate.Day == day && r.type.Equals("summary") && !r.signIn) ? "×" : "", styles.textStyle);
+            //}
+            //rowNum++;
             //}
             sheet.DefaultColumnWidth = 10;
             return workbook;
@@ -322,4 +331,64 @@ namespace WorkAdmin.Logic
         public const string specialUser = "yizhi song";
         #endregion
     }
+
+    public class MailPopService
+    {
+        public MailPopService(string ac, string psd, string date)
+        {
+            account = ac;
+            password = psd;
+            reportDate = date;
+        }
+
+        public Pop3Client getClient()
+        {
+            using (Pop3Client client = new Pop3Client())
+            {
+                if (client.Connected)
+                {
+                    client.Disconnect();
+                }
+                //连接263服务器
+                client.Connect(host, 110, false);
+                client.Authenticate(account, password);
+                return client;
+            }
+        }
+
+        #region Properties && Enums
+        public string account { get; set; }
+
+        public string password { get; set; }
+
+        private string host
+        {
+            get { return "pop3.263.net"; }
+        }
+
+        public string reportDate { get; set; }
+        #endregion
+    }
+
+    public class MailProperty
+    {
+        public string subject { get; set; }
+
+        public string sender { get; set; }
+
+        public DateTime sendDate { get; set; }
+    }
+
+    public class DailyReport
+    {
+        public string type { get; set; }
+
+        public string chineseName { get; set; }
+
+        public DateTime sendDate { get; set; }
+
+        public bool signIn { get; set; }
+    }
+
+
 }

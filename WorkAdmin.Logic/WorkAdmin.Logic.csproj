@@ -88,6 +88,8 @@
     <Compile Include="HolidayLogic\MailConfiguration.cs" />
     <Compile Include="MailPopService.cs" />
     <Compile Include="MailService.cs" />
+    <Compile Include="MailSettings\ExceptionMailSettings.cs" />
+    <Compile Include="MailSettings\MailConfigSection.cs" />
     <Compile Include="MyDbContext.cs" />
     <Compile Include="Extentsions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

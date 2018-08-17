@@ -6,7 +6,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <TimeStampOfAssociatedLegacyPublishXmlFile />
-    <_PublishTargetUrl>D:\Publishes\20180510</_PublishTargetUrl>
+    <_PublishTargetUrl>D:\Publishes\20180718</_PublishTargetUrl>
   </PropertyGroup>
   <ItemGroup>
     <File Include="bin/Antlr3.Runtime.dll">
@@ -112,28 +112,28 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>07/17/2013 17:03:52</publishTime>
     </File>
     <File Include="bin/WorkAdmin.Logic.dll">
-      <publishTime>05/10/2018 11:30:13</publishTime>
+      <publishTime>07/18/2018 14:48:45</publishTime>
     </File>
     <File Include="bin/WorkAdmin.Logic.dll.config">
       <publishTime>05/08/2018 11:55:12</publishTime>
     </File>
     <File Include="bin/WorkAdmin.Logic.pdb">
-      <publishTime>05/10/2018 11:30:13</publishTime>
+      <publishTime>07/18/2018 14:48:45</publishTime>
     </File>
     <File Include="bin/WorkAdmin.Models.dll">
-      <publishTime>05/10/2018 11:30:12</publishTime>
+      <publishTime>07/18/2018 14:48:44</publishTime>
     </File>
     <File Include="bin/WorkAdmin.Models.dll.config">
       <publishTime>05/08/2018 11:55:12</publishTime>
     </File>
     <File Include="bin/WorkAdmin.Models.pdb">
-      <publishTime>05/10/2018 11:30:12</publishTime>
+      <publishTime>07/18/2018 14:48:44</publishTime>
     </File>
     <File Include="bin/WorkAdmin.Site.dll">
-      <publishTime>05/10/2018 11:30:13</publishTime>
+      <publishTime>07/18/2018 14:48:45</publishTime>
     </File>
     <File Include="bin/WorkAdmin.Site.pdb">
-      <publishTime>05/10/2018 11:30:13</publishTime>
+      <publishTime>07/18/2018 14:48:45</publishTime>
     </File>
     <File Include="Content/alertify.default.min.css">
       <publishTime>05/08/2018 11:55:12</publishTime>
@@ -499,7 +499,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>05/08/2018 11:55:12</publishTime>
     </File>
     <File Include="Views/Shared/_Layout.cshtml">
-      <publishTime>05/08/2018 11:55:12</publishTime>
+      <publishTime>06/05/2018 09:25:03</publishTime>
     </File>
     <File Include="Views/Shared/_LoginPartial.cshtml">
       <publishTime>05/08/2018 11:55:12</publishTime>
@@ -511,7 +511,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>05/08/2018 11:55:12</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>05/10/2018 11:30:33</publishTime>
+      <publishTime>07/18/2018 14:49:04</publishTime>
     </File>
   </ItemGroup>
 </Project>

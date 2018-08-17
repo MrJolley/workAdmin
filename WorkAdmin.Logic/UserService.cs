@@ -304,23 +304,25 @@ namespace WorkAdmin.Logic
                 && !r.rankLevel.Equals("Manager")).ToList();
         }
 
-        public static void SaveReportRecords(List<MailPopService.DailyReport> report)
+        public static void SaveReportRecords(List<DailyReport> report)
         {
             if (report.Count > 0)
             {
                 using (MyDbContext db = new MyDbContext())
                 {
+                    var list = new List<WorkReportRecord>();
                     foreach (var item in report)
                     {
-                        db.WorkReportRecords.Add(
-                            new WorkReportRecord()
-                            {
-                                userName = item.chineseName,
-                                type = item.type,
-                                recordDate = item.sendDate,
-                                signIn = item.signIn
-                            });
+                        list.Add(new WorkReportRecord()
+                        {
+                            userName = item.chineseName,
+                            type = item.type,
+                            recordDate = item.sendDate,
+                            signIn = item.signIn
+                        });
                     }
+                    var data = list.Where(x => x.signIn).ToList();
+                    db.WorkReportRecords.AddRange(list);
                     db.SaveChanges();
                 }
             }
@@ -340,10 +342,10 @@ namespace WorkAdmin.Logic
             }
         }
 
-        public static List<MailPopService.DailyReport> GetMailReportData(List<User> users, List<MailPopService.DailyReport> mailReport,
+        public static List<DailyReport> GetMailReportData(List<User> users, List<DailyReport> mailReport,
             string[] reportType, DateTime curDate)
         {
-            List<MailPopService.DailyReport> dbReport = new List<MailPopService.DailyReport>();
+            List<DailyReport> dbReport = new List<DailyReport>();
             if (users.Count > 0)
             {
                 foreach (User user in users)
@@ -361,7 +363,7 @@ namespace WorkAdmin.Logic
                         }
                         else
                         {
-                            dbReport.Add(new MailPopService.DailyReport() { chineseName = user.LetterName, type = type, sendDate = curDate, signIn = false });
+                            dbReport.Add(new DailyReport() { chineseName = user.LetterName, type = type, sendDate = curDate, signIn = false });
                         }
                     }
                 }
