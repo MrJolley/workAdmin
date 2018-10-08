@@ -263,9 +263,9 @@ namespace WorkAdmin.Logic
             //员工数据段
             var allUsers = UserService.GetAllUsers();
             var listAll = UserService.GetAllMailUsers(allUsers);
-            var listTwo = UserService.GetTwoMailUsers(allUsers);
-            var listSummary = UserService.GetSummaryMailUsers(allUsers);
-            var needMailUsers = listAll.Union(listTwo).Union(listSummary).ToList();
+            //var listTwo = UserService.GetTwoMailUsers(allUsers);
+            //var listSummary = UserService.GetSummaryMailUsers(allUsers);
+            var needMailUsers = listAll.ToList();
 
 
             var reportUsers = records.Select(r => r.userName).Distinct().ToList();
@@ -274,10 +274,10 @@ namespace WorkAdmin.Logic
                 var row = sheet.CreateRow(rowNum);
                 string userName = user.LetterName;
                 var report = records.Where(r => r.userName.ToLower() == userName);
-                if (userName.Equals(specialUser))
-                {
-                    report = report.Union(records.Where(r => r.userName.ToLower() == "cnabs"));
-                }
+                //if (userName.Equals(specialUser))
+                //{
+                //    report = report.Union(records.Where(r => r.userName.ToLower() == "cnabs"));
+                //}
                 SetCellValueWithStyle(row.CreateCell(0), user.ChineseName, styles.textStyle);
                 SetCellValueWithStyle(row.CreateCell(1), userName, styles.textStyle);
                 SetCellValueWithStyle(row.CreateCell(2), user.rankLevel, styles.textStyle);
@@ -328,7 +328,7 @@ namespace WorkAdmin.Logic
             return cell;
         }
 
-        public const string specialUser = "yizhi song";
+        //public const string specialUser = "yizhi song";
         #endregion
     }
 

@@ -19,8 +19,8 @@ namespace WorkReportBuilder
             if (!DateTime.TryParse(ConfigurationManager.AppSettings["Date"], out reportDate))
             {
                 reportDate = DateTime.Today; //统计当前月份的workreport情况
-                //临时统计7月份数据
-                reportDate = new DateTime(2018, 07, 01);
+                //临时统计9月份数据
+                reportDate = new DateTime(2018, 09, 01);
             }
             DoMailService dm = new DoMailService();
             //try
@@ -30,8 +30,8 @@ namespace WorkReportBuilder
             //获取所有需要发送report邮件的人员名单
             var users = UserService.GetAllUsers();
             var listAll = UserService.GetAllMailUsers(users);
-            var listTwo = UserService.GetTwoMailUsers(users);
-            var listSummary = UserService.GetSummaryMailUsers(users);
+            //var listTwo = UserService.GetTwoMailUsers(users);
+            //var listSummary = UserService.GetSummaryMailUsers(users);
 
             //记录每一个有效工作日的report邮件
             var date = reportDate;
@@ -46,12 +46,9 @@ namespace WorkReportBuilder
                         continue;
                     }
                     var availableMail = reportMail.Where(x => x.sendDate.Date == date.Date).ToList();
-                    var dbReport = (UserService.GetMailReportData(listAll, availableMail, reportAllType, date))
-                        .Concat(UserService.GetMailReportData(listTwo, availableMail, reportTwoType, date))
-                        .Concat(UserService.GetMailReportData(listSummary, availableMail, reportSummaryType, date)).ToList();
-                    var s1 = UserService.GetMailReportData(listAll, availableMail, reportAllType, date);
-                    var s2 = UserService.GetMailReportData(listTwo, availableMail, reportTwoType, date);
-                    var s3 = UserService.GetMailReportData(listSummary, availableMail, reportSummaryType, date);
+                    var dbReport = UserService.GetMailReportData(listAll, availableMail, reportAllType, date);
+                        //.Concat(UserService.GetMailReportData(listTwo, availableMail, reportTwoType, date))
+                        //.Concat(UserService.GetMailReportData(listSummary, availableMail, reportSummaryType, date)).ToList();
                     if (dbReport.Count > 0)
                     {
                         UserService.DeleteReportRecords(date);

@@ -248,6 +248,7 @@ namespace WorkAdmin.Logic
         /// <summary>
         /// 每天早中晚三封邮件
         /// GAS TEAM, QC POSITION, Product, FUND DATA, LE 每天早中晚三封
+        /// GAS TEAM每天早中晚三封（更新于20180917）
         /// 宋轶之早中晚三封
         /// </summary>
         /// <param name="allUsers"></param>
@@ -256,53 +257,40 @@ namespace WorkAdmin.Logic
         {
             var includedUsers = allUsers.Where(r => !r.IsExcluded && r.rankLevel != null && r.department != null && r.position != null);
             var users = (includedUsers.Where(r =>
-                            (r.department.Equals("GAS") ||
-                            r.position.Equals("QC") ||
-                            (r.department.Equals("Product") && r.position.Equals("Product")) ||
-                            (r.department.Equals("FUND") && r.position.Equals("DATA")) ||
-                            r.position.Equals("LE"))
-                 && !r.rankLevel.Equals("Manager")));
-            if (users.Count() > 0)
-            {
-                return includedUsers.Where(r => r.LetterName.ToLower().Equals(specialUser))
-                .Union(users).ToList();
-            }
-            else
-            {
-                return includedUsers.Where(r => r.LetterName.ToLower().Equals(specialUser) && !r.IsExcluded).ToList();
-            }
+                           r.department.Equals("GAS") && !r.rankLevel.Equals("Manager")));
+                return users.ToList();
         }
 
-        /// <summary>
-        /// 每天早晚两封邮件
-        /// ABS DATA, Research TEAM 每天早晚两封
-        /// </summary>
-        /// <param name="allUsers"></param>
-        /// <returns></returns>
-        public static List<User> GetTwoMailUsers(List<User> allUsers)
-        {
-            var includedUsers = allUsers.Where(r => !r.IsExcluded && r.rankLevel != null && r.department != null && r.position != null && r.project != null);
-            var users = includedUsers.Where(r =>
-                       ((r.project.Equals("CNABS") && r.position.Equals("DATA")) || 
-                       (r.department.Equals("Research"))) 
-                && !r.rankLevel.Equals("Manager")).ToList();
-            users.Remove(users.Where(r => r.LetterName.Equals(specialUser)).ToList().FirstOrDefault());
-            return users;
-        }
+        ///// <summary>
+        ///// 每天早晚两封邮件
+        ///// ABS DATA, Research TEAM 每天早晚两封
+        ///// </summary>
+        ///// <param name="allUsers"></param>
+        ///// <returns></returns>
+        //public static List<User> GetTwoMailUsers(List<User> allUsers)
+        //{
+        //    var includedUsers = allUsers.Where(r => !r.IsExcluded && r.rankLevel != null && r.department != null && r.position != null && r.project != null);
+        //    var users = includedUsers.Where(r =>
+        //               ((r.project.Equals("CNABS") && r.position.Equals("DATA")) || 
+        //               (r.department.Equals("Research"))) 
+        //        && !r.rankLevel.Equals("Manager")).ToList();
+        //    users.Remove(users.Where(r => r.LetterName.Equals(specialUser)).ToList().FirstOrDefault());
+        //    return users;
+        //}
 
-        /// <summary>
-        /// 每天晚上一封邮件
-        /// Marketing 晚上一封
-        /// </summary>
-        /// <param name="allUsers"></param>
-        /// <returns></returns>
-        public static List<User> GetSummaryMailUsers(List<User> allUsers)
-        {
-            var includedUsers = allUsers.Where(r => !r.IsExcluded && r.rankLevel != null && r.department != null && r.position != null && r.project != null);
-            return includedUsers.Where(r =>
-                r.department.Equals("Marketing")
-                && !r.rankLevel.Equals("Manager")).ToList();
-        }
+        ///// <summary>
+        ///// 每天晚上一封邮件
+        ///// Marketing 晚上一封
+        ///// </summary>
+        ///// <param name="allUsers"></param>
+        ///// <returns></returns>
+        //public static List<User> GetSummaryMailUsers(List<User> allUsers)
+        //{
+        //    var includedUsers = allUsers.Where(r => !r.IsExcluded && r.rankLevel != null && r.department != null && r.position != null && r.project != null);
+        //    return includedUsers.Where(r =>
+        //        r.department.Equals("Marketing")
+        //        && !r.rankLevel.Equals("Manager")).ToList();
+        //}
 
         public static void SaveReportRecords(List<DailyReport> report)
         {
@@ -351,10 +339,10 @@ namespace WorkAdmin.Logic
                 foreach (User user in users)
                 {
                     var userReport = mailReport.Where(r => string.Equals(r.chineseName.ToLower(), user.LetterName, StringComparison.CurrentCultureIgnoreCase));
-                    if (user.LetterName.Equals(specialUser))
-                    {
-                        userReport = userReport.Union(mailReport.Where(r => r.chineseName.ToLower().Equals("cnabs")).ToList());
-                    }
+                    //if (user.LetterName.Equals(specialUser))
+                    //{
+                    //    userReport = userReport.Union(mailReport.Where(r => r.chineseName.ToLower().Equals("cnabs")).ToList());
+                    //}
                     foreach (string type in reportType)
                     {
                         if (userReport.Any(r => r.type == type))
@@ -371,6 +359,6 @@ namespace WorkAdmin.Logic
             return dbReport;
         }
 
-        public const string specialUser = "yizhi song";
+        //public const string specialUser = "yizhi song";
     }
 }
