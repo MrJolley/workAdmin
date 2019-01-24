@@ -503,7 +503,7 @@ namespace WorkAdmin.Site.Controllers
             DateTime dt = new DateTime(year, month, 1);
             return Json(DoMailService.GetWorkReportExist(dt));
         }
-
+        
         public ActionResult GetWorkReportFile()
         {
             int year = int.Parse(Request["year"]);

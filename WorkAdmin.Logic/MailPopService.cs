@@ -60,17 +60,15 @@ namespace WorkAdmin.Logic
                             mp.sendDate = sendDate;
                             lmp.Add(mp);
                         }
-                    }
+                    }   
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     index = i;
                     continue;
                     //throw;
                 }
-
             }
-
 
             //读取符合规则的daily report邮件
             List<DailyReport> allReports = new List<DailyReport>();

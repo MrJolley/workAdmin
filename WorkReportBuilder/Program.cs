@@ -19,8 +19,8 @@ namespace WorkReportBuilder
             if (!DateTime.TryParse(ConfigurationManager.AppSettings["Date"], out reportDate))
             {
                 reportDate = DateTime.Today; //统计当前月份的workreport情况
-                //临时统计9月份数据
-                reportDate = new DateTime(2018, 09, 01);
+                //临时统计12月份数据
+                reportDate = new DateTime(2018, 12, 01);
             }
             DoMailService dm = new DoMailService();
             //try
