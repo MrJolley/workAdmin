@@ -17,10 +17,9 @@ namespace WorkAdmin.Logic
         //配置年假字段
         private string _holidaySubject = "Paid Leave Reminding";
         private string _holidayContentComment = "以下为你当前剩余年假信息，请查收。";
-        private string _holidayTagComment = $"年假使用规则说明：{newLine}1.	年假请在截止日前使用完毕。{newLine}2.	上一区间未使用年假分两部分分别计入本区间上下半年，本区间年假等分12个月分别计入相应月份，原则上员工不可以提前使用当前月份之后的年假，特殊情况下经主管批准可以提前使用一个季度的年假。" +
-            $"{newLine}3.	年假先使用法定年假，后使用福利年假。{newLine}4.		年假使用应按月折算当月可使用小时数，原则上不可以超前使用。";
-        //private string _holidayTagComment = $"注：年假请在截止日前使用完毕。年假使用方式为优先使用<span style=\"background-color:yellow\">本区间内应休年假</span>，" +
-            //$"使用完毕后才可使用<span style=\"background-color:yellow\">上一区间内未休计入本区间</span>。";
+        private string _holidayTagComment = $"年假使用规则说明：{newLine}1.	上一年度区间年假请在今年6月30日前使用完毕。{newLine}" +
+            $"2.	年假先使用法定年假，后使用福利年假。" +
+            $"{newLine}3.	年假使用应按月折算当月可使用小时数，原则上不可以超前使用。";
         //配置调休字段
         private string _transferSubject = "调休剩余时间提醒";
         private string _transferContentComment = "您还有剩余调休时间未使用，" +
@@ -28,8 +27,8 @@ namespace WorkAdmin.Logic
         //配置公共字段
         private string _contentRespect = "Hi {0},";
         private string _mailSenderDisplay = ConfigurationManager.AppSettings["holidayTransferMailSenderDisplayName"];
-        private string _mailSenderSignature = "<P>BR,</P><p>" +
-           ConfigurationManager.AppSettings["holidayTransferMailSenderSignature"] + "</p>";
+        private string _mailSenderSignature = "<P>BR,</P>";
+           // ConfigurationManager.AppSettings["holidayTransferMailSenderSignature"] + "</p>";
         #endregion
 
         /// <summary>
@@ -67,7 +66,6 @@ namespace WorkAdmin.Logic
             StringBuilder result = new StringBuilder();
             string name = holiday.StaffName;
             //计算员工年假剩余总时间，过期时间
-
             string contentRespect = string.Format(_contentRespect, name);
             string holidayContentComment = _holidayContentComment;
 
@@ -78,9 +76,12 @@ namespace WorkAdmin.Logic
                         name = holiday.StaffName,
                         begin = holiday.PaidLeaveBeginDate.ToString("yyyy-MM-dd"),
                         end = holiday.PaidLeaveEndDate.ToString("yyyy-MM-dd"),
-                        before = holiday.BeforePaidLeaveRemainingHours,
-                        current = holiday.CurrentPaidLeaveRemainingHours,
-                        total = holiday.PaidLeaveRemainingHours,
+                        before = holiday.BeforeRemainingHours,
+                        legal = holiday.CurrentLegalHours,
+                        welfare = holiday.CurrentWelfareHours,
+                        totalAvailable = holiday.BeforeRemainingHours + holiday.CurrentLegalHours +holiday.CurrentWelfareHours,
+                        used = holiday.CurrentUsedHours,
+                        remaining = holiday.BeforeRemainingHours + holiday.CurrentLegalHours +holiday.CurrentWelfareHours - holiday.CurrentUsedHours,
                         available = holiday.CurrentAvailableRemainingHours
                     }
                 }));
@@ -116,8 +117,6 @@ namespace WorkAdmin.Logic
         /// Table数据格式转化为邮件HTML格式
         /// </summary>
         /// <param name="dt">数据项详情表</param>
-        /// <param name="nameCol">只显示一次的姓名表头</param>
-        /// <param name="name">只显示一次的姓名</param>
         /// <returns></returns>
         private string HolidayTableConvertHtml(DataTable dt)
         {
@@ -127,9 +126,12 @@ namespace WorkAdmin.Logic
             sb.Append("<table style=\"border-collapse:collapse;text-align:center;font-family:'Microsoft YaHei','微软雅黑','SimSun','宋体','arial','serif'\">").Append("<tr>");
             sb.Append("<td rowspan=2 style=\"border: 1px solid black; width: 100px; \">").Append("姓名").Append("</td>");
             sb.Append("<td colspan=2 style=\"border: 1px solid black; \">").Append("年假区间").Append("</td>");
-            sb.Append("<td rowspan=2 style=\"border: 1px solid black; width: 80px; \">").Append("上一区间未休计入本区间(h)").Append("</td>");
-            sb.Append("<td rowspan=2 style=\"border: 1px solid black; width: 80px; \">").Append("本区间应休年假(h)").Append("</td>");
-            sb.Append("<td rowspan=2 style=\"border: 1px solid black; width: 80px; \">").Append("剩余年假(h)").Append("</td>");
+            sb.Append("<td rowspan=2 style=\"border: 1px solid black; width: 80px; \">").Append("上一年度未休计入本年度(h)").Append("</td>");
+            sb.Append("<td rowspan=2 style=\"border: 1px solid black; width: 80px; \">").Append("本年度应休法定年假(h)").Append("</td>");
+            sb.Append("<td rowspan=2 style=\"border: 1px solid black; width: 80px; \">").Append("本年度可休福利年假(h)").Append("</td>");
+            sb.Append("<td rowspan=2 style=\"border: 1px solid black; width: 80px; \">").Append("本年度可使用年假(h)").Append("</td>");
+            sb.Append("<td rowspan=2 style=\"border: 1px solid black; width: 80px; \">").Append("本年度已使用年假(h)").Append("</td>");
+            sb.Append("<td rowspan=2 style=\"border: 1px solid black; width: 80px; \">").Append("本年度剩余总年假(h)").Append("</td>");
             sb.Append("<td rowspan=2 style=\"border: 1px solid black; width: 80px; \">").Append("截止本月可使用年假(h)").Append("</td>").Append("</tr>");
             sb.Append("<tr>");
             sb.Append("<td style=\"border: 1px solid black; width: 120px; \">").Append("起始日期").Append("</td>");
@@ -183,3 +185,4 @@ namespace WorkAdmin.Logic
         }
     }
 }
+  

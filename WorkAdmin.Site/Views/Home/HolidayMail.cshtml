@@ -11,7 +11,7 @@
         @ViewBag.Title
     </div>
     <div class="panel-body" ng-controller="excelCheckCtrl">
-        <div>@Html.Display(data.CurrentPaidLeaveRemainingHours.ToString())</div>
+        <div>@Html.Display(data.CurrentAvailableRemainingHours.ToString())</div>
         <form class="form-horizontal">
             <div style="border-bottom: 1px solid #9f9a9a; padding: 10px;">
                 <div class="form-group">
@@ -42,12 +42,15 @@
                 <table class="table table-bordered table-hover fixed-holiday">
                     <tr>
                         <td rowspan=2 style="padding-top:26px;">Checked</td>
-                        <td rowspan="2" style="padding-top:26px;">姓名</td>
-                        <td colspan="2">年假区间</td>
-                        <td rowspan="2" style="padding-top:26px;">上一区间未休计入本区间(h)</td>
-                        <td rowspan="2" style="padding-top:26px;">本区间应休年假(h)</td>
-                        <td rowspan="2" style="padding-top:26px;">剩余年假(h)</td>
-                        <td rowspan="2" style="padding-top:26px;">当前可使用年假(h)</td>
+                        <td rowspan="2" style="padding-top:26px;min-width:80px">姓名</td>
+                        <td colspan="2" style="min-width:180px">年假区间</td>
+                        <td rowspan="2" style="padding-top:26px;">上一年度未休计入本年度(h)</td>
+                        <td rowspan="2" style="padding-top:26px;">本年度应休法定年假(h)</td>
+                        <td rowspan="2" style="padding-top:26px;">本年度可休福利年假(h)</td>
+                        <td rowspan="2" style="padding-top:26px;">本年度可使用年假(h)</td>
+                        <td rowspan="2" style="padding-top:26px;">本年度已使用年假(h)</td>
+                        <td rowspan="2" style="padding-top:26px;">本年度剩余总年假(h)</td>
+                        <td rowspan="2" style="padding-top:26px;">截止本月可使用年假(h)</td>
                     </tr>
                     <tr>
                         <td>起始日期</td>
@@ -60,9 +63,13 @@
                         <td ng-bind="item.StaffName"></td>
                         <td ng-bind="item.PaidLeaveBeginDate"></td>
                         <td ng-bind="item.PaidLeaveEndDate"></td>
-                        <td ng-bind="item.BeforePaidLeaveRemainingHours"></td>
-                        <td ng-bind="item.CurrentPaidLeaveRemainingHours"></td>
-                        <td ng-bind="item.PaidLeaveRemainingHours"></td>
+                        <td ng-bind="item.BeforeRemainingHours"></td>
+
+                        <td ng-bind="item.CurrentLegalHours"></td>
+                        <td ng-bind="item.CurrentWelfareHours"></td>
+                        <td ng-bind="item.BeforeRemainingHours + item.CurrentLegalHours +item.CurrentWelfareHours"></td>
+                        <td ng-bind="item.CurrentUsedHours"></td>
+                        <td ng-bind="item.BeforeRemainingHours + item.CurrentLegalHours +item.CurrentWelfareHours-item.CurrentUsedHours"></td>
                         <td ng-bind="item.CurrentAvailableRemainingHours"></td>
                     </tr>
                 </table>

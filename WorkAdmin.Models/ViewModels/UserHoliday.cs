@@ -37,43 +37,52 @@ namespace WorkAdmin.Models.ViewModels
         public DateTime PaidLeaveEndDate { get => _paidLeaveEndDate; set => _paidLeaveEndDate = value; }
 
         /// <summary>
-        /// 上一区间剩余的带薪假期总时间
+        /// 上一区间剩余假期总时间
         /// </summary>
-        private double _beforePaidLeaveRemainingHours;
-        public double BeforePaidLeaveRemainingHours { get => _beforePaidLeaveRemainingHours; set => _beforePaidLeaveRemainingHours = value; }
+        private double _beforeRemainingHours;
+        public double BeforeRemainingHours { get => _beforeRemainingHours; set => _beforeRemainingHours = value; }
 
         /// <summary>
-        /// 本区间剩余的带薪假期总时间
+        /// 当前区间法定年假
         /// </summary>
-        private double _currentPaidLeaveRemainingHours;
-        public double CurrentPaidLeaveRemainingHours { get => _currentPaidLeaveRemainingHours; set => _currentPaidLeaveRemainingHours = value; }
+        private double _currentLegalHours;
+        public double CurrentLegalHours { get => _currentLegalHours; set => _currentLegalHours = value; }
 
         /// <summary>
-        /// 当前已使用的年假总和，包括上一区间剩余的年假
+        /// 当前区间福利年假
         /// </summary>
-        private double _currentUsedPaidLeaveHours;
-        public double CurrentUsedPaidLeaveHours { get => _currentUsedPaidLeaveHours; set => _currentUsedPaidLeaveHours = value; }
+        private double _currentWelfareHours;
+        public double CurrentWelfareHours { get => _currentWelfareHours; set => _currentWelfareHours = value; }
 
         /// <summary>
-        /// 当前剩余的带薪假期总时间
+        /// 当前已使用的年假总和，包括上一区间剩余的年假，法定年假，福利年假
         /// </summary>
-        public double PaidLeaveRemainingHours { get => _beforePaidLeaveRemainingHours + _currentPaidLeaveRemainingHours - _currentUsedPaidLeaveHours; }
+        private double _currentUsedHours;
+        public double CurrentUsedHours { get => _currentUsedHours; set => _currentUsedHours = value; }
+
+        /// <summary>
+        /// 当前剩余的假期总时间
+        /// </summary>
+        public double TotalRemainingHours
+        {
+            get =>
+                _beforeRemainingHours +
+                _currentLegalHours +
+                _currentWelfareHours -
+                _currentUsedHours;
+        }
 
         /// <summary>
         /// 当前可用年假，包括上一区间剩余的年假和本区间可使用的年假
         /// </summary>
         public double CurrentAvailableRemainingHours
         {
+            // XXX年的总年假（法定+福利）/ 12 * 当前几月份 + 上一区间剩余 - 当前已使用
             get
             {
-                double availableMonth = (curDate.Year - _paidLeaveBeginDate.Year) * 12 + (curDate.Month - _paidLeaveBeginDate.Month) + 1;
-                int sMonth = _currentPaidLeaveRemainingHours == 24 ? 6 : 12; // 新人法定休假为24小时，且半年有效期
-                double num = curDate < _paidLeaveBeginDate ? 0 :
-                    (curDate > _paidLeaveEndDate ? sMonth :
-                    (availableMonth > sMonth ? sMonth : availableMonth));
-                var legalRemaining = Math.Round((num > 6 ? _beforePaidLeaveRemainingHours : _beforePaidLeaveRemainingHours / 2) + 
-                    _currentPaidLeaveRemainingHours / sMonth * num, 2);
-                return legalRemaining > _currentUsedPaidLeaveHours ? (legalRemaining - _currentUsedPaidLeaveHours) : 0;
+                double available = (_currentLegalHours + _currentWelfareHours) / 12 * (curDate.Month + 1) +
+                    _beforeRemainingHours - _currentUsedHours;
+                return available > 0 ? double.Parse(available.ToString("f2")) : 0;
             }
         }
         #endregion

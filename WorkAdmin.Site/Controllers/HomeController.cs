@@ -629,7 +629,7 @@ namespace WorkAdmin.Site.Controllers
 
                     Parallel.ForEach(holidayList, (item, state) =>
                     {
-                        if (item.PaidLeaveRemainingHours == 0 ||
+                        if (item.TotalRemainingHours == 0 ||
                             item.PaidLeaveBeginDate > DateTime.Now ||
                             item.PaidLeaveEndDate < DateTime.Now)
                         {

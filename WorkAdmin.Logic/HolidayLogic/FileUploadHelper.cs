@@ -30,9 +30,9 @@ namespace WorkAdmin.Logic.HolidayLogic
         /// <param name="fileName">文件名，包括后缀</param>
         public FileUploadHelper(Stream stream, string fileName, string loginName)
         {
-            this._fileStream = stream;
-            this._fileName = fileName;
-            this._loginName = loginName;
+            _fileStream = stream;
+            _fileName = fileName;
+            _loginName = loginName;
             BuildWorkbook();
         }
 
@@ -41,7 +41,7 @@ namespace WorkAdmin.Logic.HolidayLogic
         /// </summary>
         public HolidayResult ReadHolidayFile()
         {
-            var sheet = this._workBook.GetSheetAt(0);
+            var sheet = _workBook.GetSheetAt(0);
             if (sheet == null)
             {
                 return new HolidayResult()
@@ -120,11 +120,12 @@ namespace WorkAdmin.Logic.HolidayLogic
                             {
                                 StaffName = name,
                                 StaffEmail = user.EmailAddress,
-                                PaidLeaveBeginDate = DateTime.Parse(sRow.GetCell(regionCol, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString().Trim()),
-                                PaidLeaveEndDate = DateTime.Parse(sRow.GetCell(regionCol + 1, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString().Trim()),
-                                BeforePaidLeaveRemainingHours = double.Parse(sRow.GetCell(regionCol + 2, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString().Trim()),
-                                CurrentPaidLeaveRemainingHours = double.Parse(sRow.GetCell(regionCol + 3, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString().Trim()),
-                                CurrentUsedPaidLeaveHours = sRow.GetCell(usedCol, MissingCellPolicy.CREATE_NULL_AS_BLANK).NumericCellValue
+                                PaidLeaveBeginDate = Convert.ToDateTime(GetCellFormulaValue(sRow, regionCol)),
+                                PaidLeaveEndDate = Convert.ToDateTime(GetCellFormulaValue(sRow, regionCol + 1)),
+                                BeforeRemainingHours = double.Parse(GetCellFormulaValue(sRow, regionCol + 3)),
+                                CurrentLegalHours = double.Parse(GetCellFormulaValue(sRow, regionCol + 4)),
+                                CurrentWelfareHours = double.Parse(GetCellFormulaValue(sRow, regionCol + 5)),
+                                CurrentUsedHours = double.Parse(GetCellFormulaValue(sRow, usedCol)),
                             });
                         }
                         catch (Exception)
@@ -133,7 +134,6 @@ namespace WorkAdmin.Logic.HolidayLogic
                             throw;
                         }
                     }
-
                 }
             }
             catch (Exception ex)
@@ -464,6 +464,29 @@ namespace WorkAdmin.Logic.HolidayLogic
                 this._workBook = new XSSFWorkbook(_fileStream);
             else
                 throw new Exception("Excel wrong format:" + fileExt);
+        }
+
+        public string GetCellFormulaValue(IRow row, int cellIndex)
+        {
+            ICell cell = row.GetCell(cellIndex, MissingCellPolicy.CREATE_NULL_AS_BLANK);
+            // NPOI中数字和日期都是NUMERIC类型的
+            if (cell.CellType == CellType.Numeric)
+            {
+                if (DateUtil.IsCellDateFormatted(cell))
+                {
+                    return cell.DateCellValue.ToString("yyyy-MM-dd");
+                }
+                return cell.NumericCellValue.ToString();
+            }
+            else if (cell.CellType == CellType.Formula)
+            {
+                return cell.NumericCellValue.ToString("f2");
+            }
+            else if (cell.CellType == CellType.Blank)
+            {
+                return string.Empty;
+            }
+            return cell.ToString();
         }
 
         public class HolidayResult
