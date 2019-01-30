@@ -80,7 +80,7 @@ namespace WorkAdmin.Models.ViewModels
             // XXX年的总年假（法定+福利）/ 12 * 当前几月份 + 上一区间剩余 - 当前已使用
             get
             {
-                double available = (_currentLegalHours + _currentWelfareHours) / 12 * (curDate.Month + 1) +
+                double available = (_currentLegalHours + _currentWelfareHours) / 12 * curDate.Month +
                     _beforeRemainingHours - _currentUsedHours;
                 return available > 0 ? double.Parse(available.ToString("f2")) : 0;
             }
