@@ -365,6 +365,11 @@ namespace WorkAdmin.Logic.HolidayLogic
             return wtr;
         }
 
+        /// <summary>
+        /// 社保公积金缴存基数
+        /// </summary>
+        /// <param name="year">缴存年份</param>
+        /// <returns></returns>
         public InsuranceRadixResult ReadInsuranceRadixFile(int year)
         {
             var sheet = this._workBook.GetSheetAt(0);
@@ -379,21 +384,21 @@ namespace WorkAdmin.Logic.HolidayLogic
             }
             //定位标题行
             var num = sheet.LastRowNum;
-            int titleNum = -1;
+            int startNum = -1;
             for (int i = 0; i < num + 1; i++)
             {
                 IRow row = sheet.GetRow(i);
                 if (row != null)
                 {
-                    ICell cell = sheet.GetRow(i).GetCell(0, MissingCellPolicy.CREATE_NULL_AS_BLANK);
-                    if (cell != null && cell.ToString().Trim().Equals("序号"))
+                    ICell cell = sheet.GetRow(i).GetCell(1, MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                    if (cell != null && cell.ToString().Trim().Equals("姓名"))
                     {
-                        titleNum = i;
+                        startNum = i;
                         break;
                     }
                 }
             }
-            if (titleNum == -1)
+            if (startNum == -1)
             {
                 return new InsuranceRadixResult()
                 {
@@ -403,27 +408,26 @@ namespace WorkAdmin.Logic.HolidayLogic
             }
             //读取数据
             var users = UserService.GetAllUsers().ToList();
-            result.Year = year.ToString();
+            result.Year = year;
             string errorName = string.Empty;
             try
             {
-                for (int j = titleNum + 1; j < sheet.LastRowNum + 1; j++)
+                for (int j = startNum + 1; j < sheet.LastRowNum + 1; j++)
                 {
                     IRow data = sheet.GetRow(j);
-                    string flag = data.GetCell(0, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString();
-                    if (flag == null || flag.Equals(string.Empty))
+                    string name = data.GetCell(1, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString();
+                    if (name == null || name.Equals(string.Empty))
                     {
                         break;
                     }
-                    int.TryParse(flag, out int cols);
-                    if (cols == 0)
-                    {
-                        continue;
-                    }
-                    string name = data.GetCell(1, MissingCellPolicy.CREATE_NULL_AS_BLANK).ToString();
                     try
                     {
                         var user = users.Where(r => r.ChineseName == name).First();
+                        if (user == null)
+                        {
+                            errorName = name;
+                            throw new Exception("");
+                        }
                         result.InsuranceRadixDetails.Add(new InsuranceRadix.UserInfo()
                         {
                             ChineseName = name,

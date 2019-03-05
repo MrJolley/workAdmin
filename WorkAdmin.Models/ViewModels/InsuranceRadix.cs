@@ -10,8 +10,8 @@ namespace WorkAdmin.Models.ViewModels
     public class InsuranceRadix
     {
         [Display(Name = "统计年份")]
-        public string Year { get; set; }
-        = DateTime.Now.Year.ToString();
+        public int Year { get; set; }
+        = DateTime.Now.Year;
 
         public List<UserInfo> InsuranceRadixDetails { get; set; }
         = new List<UserInfo>();

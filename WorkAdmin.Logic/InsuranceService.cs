@@ -24,7 +24,7 @@ namespace WorkAdmin.Logic
             MailConfiguration config = new MailConfiguration();
             var client = config.GetMailClient(account, password);
 
-            string subject = year + "年度月平均工资";
+            string subject = year + "年社保及公积金基数调整";
             var message = config.GetMailMessage(subject, account, content, ccList);
             //配置收件人地址
             var address = config.GetMailAddress(userAddress);
@@ -34,7 +34,6 @@ namespace WorkAdmin.Logic
             }
             client.Send(message);
         }
-
 
         /// <summary>
         /// 社保基数HTML数据
@@ -82,6 +81,5 @@ namespace WorkAdmin.Logic
             return
                 sb.ToString();
         }
-
     }
 }

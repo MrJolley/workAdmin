@@ -503,7 +503,7 @@ namespace WorkAdmin.Site.Controllers
             DateTime dt = new DateTime(year, month, 1);
             return Json(DoMailService.GetWorkReportExist(dt));
         }
-        
+
         public ActionResult GetWorkReportFile()
         {
             int year = int.Parse(Request["year"]);
@@ -732,7 +732,7 @@ namespace WorkAdmin.Site.Controllers
                         string htmlData = string.Empty;
                         try
                         {
-                            htmlData = radixService.RadixDataConvert2Html(item, ir.Year, upContent, downContent);
+                            htmlData = radixService.RadixDataConvert2Html(item, ir.Year.ToString(), upContent, downContent);
                         }
                         catch (Exception ex)
                         {
@@ -742,7 +742,7 @@ namespace WorkAdmin.Site.Controllers
                         }
                         try
                         {
-                            radixService.MailSending(email, password, item.Email, htmlData, ir.Year, CCAddress);
+                            radixService.MailSending(email, password, item.Email, htmlData, (ir.Year + 1).ToString(), CCAddress);
                             result.SuccessList.Add(item.ChineseName);
                         }
                         catch (Exception ex)

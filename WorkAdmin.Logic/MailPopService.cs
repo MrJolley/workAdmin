@@ -60,7 +60,7 @@ namespace WorkAdmin.Logic
                             mp.sendDate = sendDate;
                             lmp.Add(mp);
                         }
-                    }   
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -75,7 +75,7 @@ namespace WorkAdmin.Logic
             foreach (var pro in lmp)
             {
                 DailyReport report = new DailyReport();
-                if (GetMorningPlanRule(pro.sendDate, pro.subject))
+                if (GetMorningPlanRule(pro.subject))
                 {
                     report.type = "morning";
                     string[] rlt = morningReg.Match(pro.subject).Groups[0].Value.Split('_');
@@ -90,7 +90,7 @@ namespace WorkAdmin.Logic
                     allReports.Add(report);
                     continue;
                 }
-                if (GetNoonUpdateRule(pro.sendDate, pro.subject))
+                if (GetNoonUpdateRule(pro.subject))
                 {
                     report.type = "noon";
                     string[] rlt = noonReg.Match(pro.subject).Groups[0].Value.Split('_');
@@ -105,7 +105,7 @@ namespace WorkAdmin.Logic
                     allReports.Add(report);
                     continue;
                 }
-                if (GetDailySummaryRule(pro.sendDate, pro.subject))
+                if (GetDailySummaryRule(pro.subject))
                 {
                     report.type = "summary";
                     Match ss = summaryReg.Match(pro.subject);
@@ -161,12 +161,12 @@ namespace WorkAdmin.Logic
         /// <summary>
         /// 早上时间设置为9点15分，规则为此时间之前发送邮件
         /// </summary>
-        /// <param name="sendingDate"></param>
         /// <returns></returns>
-        public bool GetMorningPlanRule(DateTime sendingDate, string subject)
+        public bool GetMorningPlanRule(string subject)
         {
-            DateTime morningDate = new DateTime(sendingDate.Year, sendingDate.Month, sendingDate.Day, 9, 15, 0);
-            return sendingDate <= morningDate && morningReg.IsMatch(subject);
+            // 需求变更，不限时间
+            //DateTime morningDate = new DateTime(sendingDate.Year, sendingDate.Month, sendingDate.Day, 9, 15, 0);
+            return morningReg.IsMatch(subject);
         }
 
         /// <summary>
@@ -174,11 +174,11 @@ namespace WorkAdmin.Logic
         /// </summary>
         /// <param name="sendingDate"></param>
         /// <returns></returns>
-        public bool GetNoonUpdateRule(DateTime sendingDate, string subject)
+        public bool GetNoonUpdateRule(string subject)
         {
-            DateTime noonDate = new DateTime(sendingDate.Year, sendingDate.Month, sendingDate.Day, 12, 0, 0);
-            return sendingDate <= noonDate.AddHours(1) && sendingDate >= noonDate
-                && noonReg.IsMatch(subject);
+            // 需求变更，不限时间
+            //DateTime noonDate = new DateTime(sendingDate.Year, sendingDate.Month, sendingDate.Day, 12, 0, 0);
+            return noonReg.IsMatch(subject);
         }
 
         /// <summary>
@@ -186,10 +186,11 @@ namespace WorkAdmin.Logic
         /// </summary>
         /// <param name="sendingDate"></param>
         /// <returns></returns>
-        public bool GetDailySummaryRule(DateTime sendingDate, string subject)
+        public bool GetDailySummaryRule(string subject)
         {
-            DateTime eveningDate = new DateTime(sendingDate.Year, sendingDate.Month, sendingDate.Day, 18, 0, 0);
-            return sendingDate >= eveningDate && summaryReg.IsMatch(subject);
+            // 需求变更，不限时间
+            //DateTime eveningDate = new DateTime(sendingDate.Year, sendingDate.Month, sendingDate.Day, 18, 0, 0);
+            return summaryReg.IsMatch(subject);
         }
 
         public Regex morningReg = new Regex(@"morning plan_[a-zA-Z]+\s*[a-zA-Z]+_\d{8}", RegexOptions.IgnoreCase);
